@@ -20,9 +20,6 @@
 *.out
 *.app
 
-example
-unittest
-
 *.swp
 *.gcov
 
