@@ -11,6 +11,7 @@ find_package(Tcmalloc)
 find_package(Threads)
 find_package(Boost 1.52 COMPONENTS date_time filesystem system thread regex
 	REQUIRED)
+find_package(TBB)
 
 find_library(UCL_LIBRARY NAMES ucl libucl  PATHS ${PROJECT_LIB_DIR} )
 if(UCL_LIBRARY)

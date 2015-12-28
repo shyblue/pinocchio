@@ -4,6 +4,7 @@ project (pinocchio)
 set(SOURCES main.cpp pinocchio.cpp config.cpp)
 
 add_executable(pinocchio ${SOURCES})
+target_link_libraries(pinocchio ${TBB_LIBRARIES})
 target_link_libraries(pinocchio ${Boost_LIBRARIES})
 target_link_libraries(pinocchio ${CMAKE_THREAD_LIBS_INIT})
 
