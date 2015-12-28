@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
-project (pinocchio_executable)
+project (pinocchio)
 
-set(SOURCES pinocchio.cpp config.cpp)
+set(SOURCES main.cpp pinocchio.cpp config.cpp)
 
 add_executable(pinocchio ${SOURCES})
 target_link_libraries(pinocchio ${Boost_LIBRARIES})
@@ -21,3 +21,14 @@ add_custom_command(OUTPUT pinocchio.conf
 	DEPENDS ${PROJECT_SOURCE_DIR}/pinocchio.conf )
 
 add_custom_target(conf_copy ALL DEPENDS pinocchio.conf)
+
+add_custom_command(OUTPUT cert
+	COMMAND ${CMAKE_COMMAND} -E
+	copy ${PROJECT_SOURCE_DIR}/*.crt ${CMAKE_CURRENT_BINARY_DIR}/
+	DEPENDS ${PROJECT_SOURCE_DIR}/*.crt)
+add_custom_command(OUTPUT key
+	COMMAND ${CMAKE_COMMAND} -E
+	copy ${PROJECT_SOURCE_DIR}/*.key ${CMAKE_CURRENT_BINARY_DIR}/
+	DEPENDS ${PROJECT_SOURCE_DIR}/*.key)
+
+add_custom_target(certkey_copy ALL DEPENDS cert key)

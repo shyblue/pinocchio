@@ -1,10 +1,4 @@
 #include "pinocchio.h"
-#include "config.h"
-
-#include <boost/algorithm/string.hpp>
-
-
-using StringOpt =  boost::optional<std::string>;
 
 TPinocchio::TPinocchio(const std::string& ip, const std::string& port) : m_app(),m_ip(ip),m_port(port)
 {
@@ -13,48 +7,80 @@ TPinocchio::TPinocchio(const std::string& ip, const std::string& port) : m_app()
 
 bool TPinocchio::Initialize()
 {
-	return AddRouter();
+	AddRoute();
+	AddRouteRegist();
+	AddRouteSend();
+	AddRouteRecv();
+	AddRoutePublishApiKey();
+
+	return true;
 }
 
-bool TPinocchio::AddRouter()
+bool TPinocchio::AddRoute()
 {
 	CROW_ROUTE(m_app,"/").name("pinocchio")
 	( [] { return "This is pinocchio!"; } );
 
-	CROW_ROUTE(m_app,"/gcm/send").methods("POST"_method)
-	([](const crow::request& req)
-		{
-			std::string server_key = req.get_header_value("Authorization");
+	return true;
+}
 
-			std::ostringstream os;
-
-			std::vector<std::string> fields;
-			boost::split(fields, server_key, boost::is_any_of("="));
-			for (const auto& field : fields)
-				os << "[" << field << "]";
-
-			return crow::response{os.str()};
-		}
-	);
-
+bool TPinocchio::AddRouteRegist()
+{
 	CROW_ROUTE(m_app,"/regist/<string>")
-	([](const crow::request& req,const std::string& token)
+	([&](const std::string& token)
 	 {
-	 	auto x = crow::json::load(req.body);
-
-		if(!x) return crow::response(400);
-
+	 	if(token.length() < 40 || token.length() > 128)
+			return crow::response(200);
+			
 		std::ostringstream os;
-		os << "send_msg";
+		os << token;
+
 		return crow::response{os.str()};
 	 }
 	 );
 
+	return true;
+}
+
+bool TPinocchio::AddRouteSend()
+{
+	CROW_ROUTE(m_app,"/gcm/send").methods("POST"_method)
+	([](const crow::request& req)
+	{
+		std::string server_key = req.get_header_value("Authorization");
+		std::ostringstream os;
+
+		std::vector<std::string> fields;
+		boost::split(fields, server_key, boost::is_any_of("="));
+		for (const auto& field : fields)
+			os << "[" << field << "]";
+		return crow::response{os.str()};
+	}
+	);
+
+	return true;
+}
+
+bool TPinocchio::AddRouteRecv()
+{
 	CROW_ROUTE(m_app,"/gcm/recv/<string>")
 	([](const std::string& token)
  	 {
-		 if(token.length()!=10) return crow::response(400);
+		 if(token.length()>128) return crow::response(400);
 		 return crow::response(200);
+	 }
+	);
+
+	return true;
+}
+
+bool TPinocchio::AddRoutePublishApiKey()
+{
+	CROW_ROUTE(m_app,"/gcm/publish/ServerApiKey/<string>")
+	([](const std::string& base_key)
+	 {
+	 	if(base_key.length() < 10 || base_key.length() > 128 )
+		return crow::response(400);
 	 }
 	);
 
@@ -67,29 +93,4 @@ bool TPinocchio::run()
 		.run();
 
 	return true;
-}
-int main(void)
-{
-	Config conf("./pinocchio.conf","SERVER_CONFIG");
-	
-	std::string IP;
-	std::string PORT;
-
-	StringOpt ip_opt = conf.GetElementStr("IP");
-	if(ip_opt)
-	{
-		IP = ip_opt.get();
-	}
-	
-
-	StringOpt port_opt = conf.GetElementStr("PORT");
-	if(port_opt)
-	{
-		PORT = port_opt.get();
-	}
-
-	TPinocchio App(IP,PORT);
-	App.run();
-
-	return 0;
 }

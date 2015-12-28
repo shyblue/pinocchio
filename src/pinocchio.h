@@ -1,7 +1,4 @@
-#pragma once
-
 #include "crow/crow.h"
-#include "crow/json.h"
 #include "spdlog/spdlog.h"
 #include <string>
 
@@ -12,10 +9,15 @@ public:
 	TPinocchio(const std::string& ip, const std::string& port);
 	bool run();
 private:
-	bool AddRouter();
+
+	bool AddRoute();
+	bool AddRouteRegist();
+	bool AddRouteSend();
+	bool AddRouteRecv();
+	bool AddRoutePublishApiKey();
 	bool Initialize();
 
-	crow::SimpleApp m_app;
+	crow::Crow<> m_app;
 	std::string m_port;
 	std::string m_ip;
 
