@@ -30,12 +30,15 @@ bool TPinocchio::AddRouteRegist()
 	([&](const std::string& token)
 	 {
 	 	if(token.length() < 40 || token.length() > 128)
-			return crow::response(200);
-			
-		std::ostringstream os;
-		os << token;
+			return crow::response(400);
 
-		return crow::response{os.str()};
+		 // Find user token
+
+		 // if exist error
+
+		 // else add user token
+
+		return crow::response(200)
 	 }
 	 );
 
@@ -52,8 +55,20 @@ bool TPinocchio::AddRouteSend()
 
 		std::vector<std::string> fields;
 		boost::split(fields, server_key, boost::is_any_of("="));
-		for (const auto& field : fields)
-			os << "[" << field << "]";
+		if(fileds[0].lower() != "key") return crow::response(400);
+		if(!g_ServerApiKey.find(fileds[1].empty())) return crow::response(400);
+
+		tbb::tbb_concurrent_hash_map<std::string,TUserMsg>::accessor a;
+		if(map.find(a,))
+		{
+			// fields[1] is Server Api Key
+			// find server api key
+			// if find
+			{
+				// send
+			}
+			fields[1].trim();
+		}
 		return crow::response{os.str()};
 	}
 	);
@@ -69,6 +84,14 @@ bool TPinocchio::AddRouteRecv()
 		 if(token.length()>128) return crow::response(400);
 		 return crow::response(200);
 	 }
+
+	 // find user
+
+	// can't find user response 400
+
+	// get user's msg
+	// response msg
+
 	);
 
 	return true;

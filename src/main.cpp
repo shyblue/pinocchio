@@ -3,7 +3,7 @@
 #include "config.h"
 
 #include <boost/algorithm/string.hpp>
-
+#include <tbb/tbb_thread.hpp>
 
 using StringOpt =  boost::optional<std::string>;
 
@@ -29,7 +29,8 @@ int main(void)
 	}
 
 	TPinocchio App(IP,PORT);
-	App.run();
+	
+	tbb::tbb_thread AppThread([&App](){ App.run(); });
 
 	return 0;
 }
