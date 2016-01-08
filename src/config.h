@@ -1,24 +1,46 @@
 ﻿#pragma once
 
-#include <boost/optional.hpp>
+#include <boost/serialization/singleton.hpp>
+#include <boost/shared_ptr.hpp>
 #include <boost/property_tree/ptree.hpp>
-#include <boost/property_tree/ini_parser.hpp>
 
-class Config
+class ConfigureData : protected boost::serialization::singleton<ConfigureData>
 {
 public:
-	Config(const std::string file_name, const std::string session_name);
-	~Config();
-public:
-	boost::optional<std::string>	GetElementStr(std::string property_name);
-	boost::optional<int>		GetElementInt(std::string property_name);
-	boost::optional<double>		GetElementDouble(std::string property_name);
 
+	static ConfigureData* GetInstancePtr()
+	{
+		ConfigureData* ptr = &ConfigureData::get_mutable_instance();
+		return ptr;
+	}
+
+	bool Initialize(const std::string ConfigureFilePath);
+	bool WriteConfigureFile();
+
+	// 사용할 설정 데이터를 얻어온다
+	template<typename _T>
+	const _T GetConfigureData(std::string key, const _T default_value);
+
+	// 사용할 설정 데이터를 셋팅한다.
+	void SetConfigureData(std::string key, uint32_t value);
+	void SetConfigureData(std::string key, std::string value);
+
+	void OutConfigureData();
+
+protected:
+	ConfigureData(void);
+	~ConfigureData(void);
 private:
-	template <class Type>
-	boost::optional<Type> GetElementType(const std::string& type_name);
-	std::string MakePropertyName(const std::string& property_name);
+	bool LoadConfigureFile(const std::string ConfigureFilePath);
 
-	boost::property_tree::ptree m_pt;
-	std::string m_sessionName;
+	boost::property_tree::ptree			m_initTree;
+	std::string							m_configFile;
 };
+
+template<typename _T>
+const _T ConfigureData::GetConfigureData(std::string key, const _T default_value)
+{
+	return ini_tree_.get<_T>(key, default_value);
+}
+
+#define ST_CONFIG() ConfigureData::GetInstancePtr()

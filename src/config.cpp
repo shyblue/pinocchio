@@ -1,69 +1,82 @@
-﻿#include <boost/format.hpp>
-#include <iostream>
-#include "config.h"
+﻿#include "config.h"
+#include "spdlog/spdlog.h"
 
-Config::Config(const std::string file_name, const std::string session_name)
-	:	m_sessionName(session_name)
+#include <boost/filesystem.hpp>
+#include <boost/property_tree/ini_parser.hpp>
+
+ConfigureData::ConfigureData(void)
 {
-	boost::property_tree::ini_parser::read_ini(file_name, m_pt);
 }
 
-Config::~Config()
+ConfigureData::~ConfigureData(void)
 {
-	if (!m_sessionName.empty())
-	{
-		m_sessionName.clear();
-	}
-
-	if (!m_pt.empty())
-	{
-		m_pt.clear();
-	}
 }
 
-boost::optional<std::string> Config::GetElementStr(std::string property_name)
+bool ConfigureData::Initialize(const std::string config_file)
 {
-	return GetElementType<std::string>(property_name);
-}
-
-boost::optional<int> Config::GetElementInt(std::string property_name)
-{
-	return GetElementType<int>(property_name);
-}
-
-boost::optional<double> Config::GetElementDouble(std::string property_name)
-{
-	return GetElementType<double>(property_name);
-}
-
-template <class Type>
-boost::optional<Type> Config::GetElementType(const std::string& type_name)
-{
-	if (m_pt.empty())
-	{	return boost::optional<Type>();	}
-
-	std::string property_full_name = MakePropertyName(type_name);
-	Type result_value;
-	
 	try
 	{
-		result_value = m_pt.get<Type>(property_full_name);
+		LoadCofigureFile(config_file);
 	}
-	catch (boost::property_tree::ptree_bad_path& e)
+	catch(std::exception& exception)
 	{
-		std::cout << "[exception] bad path : " << property_full_name << ", what : " << e.what() << std::endl;
-		return boost::optional<Type>();
-	}
-	catch (boost::property_tree::ptree_bad_data& e)
-	{
-		std::cout << "[exception] bad data : " << property_full_name << ", what : " << e.what() << std::endl;
-		return boost::optional<Type>();
+		//LOG_ERROR("[ConfigureData] Initialize Error[%s]", exception.what());
+		return false;
 	}
 
-	return boost::optional<Type>(result_value);
+	return true;
 }
 
-std::string Config::MakePropertyName(const std::string& property_name)
+bool ConfigureData::LoadConfigureFile( const std::string config_file)
 {
-	return boost::str(boost::format("%s.%s") % m_sessionName.c_str() % property_name.c_str());
+	// 해당위치에서 Configure 파일을 읽는다.
+	boost::filesystem::path path(boost::filesystem::initial_path());
+	path /= config_file.c_str();
+	if(!boost::filesystem::exists(boost::filesystem::path(path) ) )
+	{
+		// ERR_CONFIGURE_NOTPATH  Error 기록
+		//LOG_ERROR("[ConfigureData][LoadCofigureFile] Nonexist File[%s]", path.c_str() );
+		return false;
+	}
+
+	m_configFile = ConfigureFilePath;
+	boost::property_tree::ini_parser::read_ini(path.string().c_str(), m_initTree);
+
+	OutConfigureData();
+
+	return true;
 }
+
+bool ConfigureData::WriteConfigureFile()
+{
+	boost::property_tree::ini_parser::write_ini(configure_path_.c_str(), m_initTree);
+	return true;
+}
+
+void ConfigureData::OutConfigureData()
+{
+	auto log = spdlog::stdout_logger_mt("console");
+
+	log->info("[OUT CONFIGURE DATA]");
+	for(const auto& value : m_initTree)
+	{
+		std::string key = value.first;
+		for(const auto& detail_value : value.second)
+		{
+			log->info("[%s] %s %s",key.c_str(),detail_value.first.c_str(), detail_value.second.data().c_str());
+		}
+	}
+}
+
+void ConfigureData::SetConfigureData(std::string key, uint32_t value)
+{
+	m_initTree.erase(key);
+	m_initTree.put(key, value);
+}
+
+void ConfigureData::SetConfigureData(std::string key, std::string value)
+{
+	m_initTree.erase(key);
+	m_initTree.put(key, value);
+}
+

@@ -1,36 +1,18 @@
-
-#include "pinocchio.h"
 #include "config.h"
-
+#include "pinocchio.h"
 #include <boost/algorithm/string.hpp>
 #include <tbb/tbb_thread.hpp>
 
 using StringOpt =  boost::optional<std::string>;
 
-
 int main(void)
 {
-	Config conf("./pinocchio.conf","SERVER_CONFIG");
-	
-	std::string IP;
-	std::string PORT;
+	ST_CONFIG()->Initialize("./pinocchio.conf");
 
-	StringOpt ip_opt = conf.GetElementStr("IP");
-	if(ip_opt)
-	{
-		IP = ip_opt.get();
-	}
+	TPinocchio app(ST_CONFIG()->GetConfigureData("SEVER_IP","127.0.0.1"),ST_CONFIG()->GetConfigureData("SERVER_PORT","18001"));
 	
-
-	StringOpt port_opt = conf.GetElementStr("PORT");
-	if(port_opt)
-	{
-		PORT = port_opt.get();
-	}
-
-	TPinocchio App(IP,PORT);
-	
-	tbb::tbb_thread AppThread([&App](){ App.run(); });
+	tbb::tbb_thread appThread([&App](){ app.run(); });
+	appThread.join();
 
 	return 0;
 }
