@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 project (pinocchio)
 
-set(SOURCES main.cpp pinocchio.cpp config.cpp redis_connector.cpp)
+set(SOURCES main.cpp pinocchio.cpp config.cpp byte_order.cpp header.cpp session_base.cpp sync_session_impl.cpp redis_connector.cpp)
 
 add_executable(pinocchio ${SOURCES})
 target_link_libraries(pinocchio ${TBB_LIBRARIES})

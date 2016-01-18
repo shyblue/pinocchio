@@ -1,6 +1,8 @@
 #include "pinocchio.h"
+#include "config.h"
 
-TPinocchio::TPinocchio(const std::string& ip, const std::string& port) : m_app(),m_ip(ip),m_port(port)
+TPinocchio::TPinocchio(const std::string& ip, const std::string& port, const std::string& server_name)
+		: m_app(),m_ip(ip),m_port(port), m_serverName(server_name)
 {
 	Initialize();
 }
@@ -38,7 +40,7 @@ bool TPinocchio::AddRouteRegist()
 
 		 // else add user token
 
-		return crow::response(200)
+		return crow::response(200);
 	 }
 	 );
 
@@ -55,10 +57,11 @@ bool TPinocchio::AddRouteSend()
 
 		std::vector<std::string> fields;
 		boost::split(fields, server_key, boost::is_any_of("="));
-		if(fileds[0].lower() != "key") return crow::response(400);
-		if(!g_ServerApiKey.find(fileds[1].empty())) return crow::response(400);
+		/*region Description
+		if(fields[0].lower() != "key") return crow::response(400);
+		if(!g_ServerApiKey.find(fields[1].empty())) return crow::response(400);
 
-		tbb::tbb_concurrent_hash_map<std::string,TUserMsg>::accessor a;
+		tbb::concurrent_hash_map<std::string,TUserMsg>::accessor a;
 		if(map.find(a,))
 		{
 			// fields[1] is Server Api Key
@@ -69,6 +72,7 @@ bool TPinocchio::AddRouteSend()
 			}
 			fields[1].trim();
 		}
+		*/
 		return crow::response{os.str()};
 	}
 	);
