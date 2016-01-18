@@ -9,17 +9,17 @@ const char RedisConnector::RC_INT		= ':';
 const char * RedisConnector::RC_IDENTIFIER = "\r\n";
 
 RedisConnector::RedisConnector(boost::asio::io_service* io_service) :
-	network_::session::SyncSessionImpl(io_service, 0)
-	,val_int_(0)
-	, func_container_(new utility_::container::MapCotainer<const char, boost::function<bool (char*, bool&)> >() )
+	SyncSessionImpl(io_service, 0)
+	,m_int(0)
+//	, m_functorContainer(MapContainer<const char, boost::function<bool (char*, bool&)> >() )
 {
 	Initialize();
 }
 
 RedisConnector::RedisConnector(boost::asio::io_service* io_service, std::string host, std::string port, const timeval timeout) :
-	network_::session::SyncSessionImpl(io_service, 0)
-	,val_int_(0)
-	, func_container_(new utility_::container::MapCotainer<const char, boost::function<bool (char*, bool&)> >() )
+	SyncSessionImpl(io_service, 0)
+	,m_int(0)
+//	, m_functorContainer(MapContainer<const char, boost::function<bool (char*, bool&)> >() )
 {
 	Initialize();
 	// timeout value set and connect set
@@ -28,11 +28,9 @@ RedisConnector::RedisConnector(boost::asio::io_service* io_service, std::string 
 	Connect(host, port);
 }
 
-
 RedisConnector::~RedisConnector(void)
 {
 }
-
 
 void RedisConnector::Initialize()
 {
@@ -41,11 +39,11 @@ void RedisConnector::Initialize()
 
 void RedisConnector::ProcessFuncRegister()
 {
-	func_container_->Insert(RC_ERROR,			boost::bind(&RedisConnector::ErrorProcessing, this, _1, _2));
-	func_container_->Insert(RC_INLINE,			boost::bind(&RedisConnector::InlineProcessing, this, _1, _2));
-	func_container_->Insert(RC_BULK,			boost::bind(&RedisConnector::BulkProcessing, this, _1, _2));
-	func_container_->Insert(RC_MULTIBULK,		boost::bind(&RedisConnector::MultiBulkProcessing, this, _1, _2));
-	func_container_->Insert(RC_INT,				boost::bind(&RedisConnector::IntProcessing, this, _1, _2));
+	m_functionContainer->Insert(RC_ERROR,	boost::bind(&RedisConnector::ErrorProcessing, this, _1, _2));
+	m_functionContainer->Insert(RC_INLINE,	boost::bind(&RedisConnector::InlineProcessing, this, _1, _2));
+	m_functionContainer->Insert(RC_BULK,	boost::bind(&RedisConnector::BulkProcessing, this, _1, _2));
+	m_functionContainer->Insert(RC_MULTIBULK,boost::bind(&RedisConnector::MultiBulkProcessing, this, _1, _2));
+	m_functionContainer->Insert(RC_INT,		boost::bind(&RedisConnector::IntProcessing, this, _1, _2));
 }
 
 void RedisConnector::EndpointSet(std::string& ipaddress, std::string& port)
@@ -80,7 +78,7 @@ bool RedisConnector::Paser(char* buffer, const size_t buffer_size)
 		{
 			char* passbuffer = buffer + index;
 
-			ProcessFunc* processing =  func_container_->Getvalue(buffer[0]);
+			ProcessFunc* processing = m_functionContainer->GetValue(buffer[0]);
 
 			if(processing)
 			{
@@ -89,7 +87,7 @@ bool RedisConnector::Paser(char* buffer, const size_t buffer_size)
 		}
 		else
 		{
-			LOG_ERROR("[Redis Error] time out");
+			ST_LOGGER.Error(L"[Redis Error] time out");
 			return false;
 		}
 	} while(retry);
@@ -99,9 +97,9 @@ bool RedisConnector::Paser(char* buffer, const size_t buffer_size)
 
 bool RedisConnector::ErrorProcessing(char* buffer, bool& retry)
 {
-	if (!IdentifierParseToString(buffer, val_error_))
+	if (!IdentifierParseToString(buffer, m_error))
 	{
-		LOG_ERROR("[RedisConnector] ErrorProcessing error");
+		ST_LOGGER.Error(L"[RedisConnector] ErrorProcessing error");
 		return true;
 	}
 
@@ -111,9 +109,9 @@ bool RedisConnector::ErrorProcessing(char* buffer, bool& retry)
 bool RedisConnector::InlineProcessing(char* buffer, bool& retry)
 {
 
-	if (!IdentifierParseToString(buffer, val_inline_))
+	if (!IdentifierParseToString(buffer, m_inline))
 	{
-		LOG_ERROR("[RedisConnector] InlineProcessing error");
+		ST_LOGGER.Error(L"[RedisConnector] InlineProcessing error");
 		return true;
 	}
 
@@ -123,9 +121,9 @@ bool RedisConnector::InlineProcessing(char* buffer, bool& retry)
 bool RedisConnector::BulkProcessing(char* buffer, bool& retry)
 {
 
-	if (!Bulk(buffer, retry, val_bulk_))
+	if (!Bulk(buffer, retry, m_bulk))
 	{
-		LOG_ERROR("[RedisConnector] BulkProcessing EndMaker error");
+		ST_LOGGER.Error(L"[RedisConnector] BulkProcessing EndMaker error");
 	}
 	return true;	
 }
@@ -134,11 +132,13 @@ bool RedisConnector::MultiBulkProcessing(char* buffer, bool& retry)
 {
 	char * p = 0;
 	int bulk_count = 0;
-	if(p = IdentifierParseToInt(buffer, bulk_count))
+
+    p = IdentifierParseToInt(buffer, bulk_count);
+    if(p)
 	{
 		p += strlen(RC_IDENTIFIER);
 
-		val_multy_bulk_.clear();
+		m_multiBulk.clear();
 
 		for(int i = 0; i < bulk_count; ++i)
 		{
@@ -150,10 +150,10 @@ bool RedisConnector::MultiBulkProcessing(char* buffer, bool& retry)
 				std::string bulk;
 				if (!(p = Bulk(p, retry, bulk)))
 				{
-					LOG_ERROR("[RedisConnector] MultiBulkProcessing error");
+					ST_LOGGER.Error(L"[RedisConnector] MultiBulkProcessing error");
 					return false;
 				}
-				val_multy_bulk_.push_back(bulk);		
+				m_multiBulk.push_back(bulk);		
 			}
 		}
 	}
@@ -163,9 +163,9 @@ bool RedisConnector::MultiBulkProcessing(char* buffer, bool& retry)
 
 bool RedisConnector::IntProcessing(char* buffer, bool& retry)
 {
-	if(!IdentifierParseToInt(buffer, val_int_))
+	if(!IdentifierParseToInt(buffer, m_int))
 	{
-		LOG_ERROR("[RedisConnector] InlineProcessing error");
+		ST_LOGGER.Error(L"[RedisConnector] InlineProcessing error");
 		return false;
 	}
 
@@ -207,7 +207,6 @@ char* RedisConnector::Bulk(char* buffer, bool& retry, std::string& value)
 	{	
 		p += strlen(RC_IDENTIFIER);
 
-		// ��ü �޽����� �ٹ޾Ҵ��� Ȯ��
 		if(strlen(p) < body_length + strlen(RC_IDENTIFIER))
 		{
 			retry = true;
@@ -219,7 +218,7 @@ char* RedisConnector::Bulk(char* buffer, bool& retry, std::string& value)
 	}
 	else
 	{
-		LOG_ERROR("[RedisConnector] BulkProcessing EndMaker error");
+		ST_LOGGER.Error(L"[RedisConnector] BulkProcessing EndMaker error");
 	}
 
 	return p;

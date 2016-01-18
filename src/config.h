@@ -4,13 +4,13 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/property_tree/ptree.hpp>
 
-class ConfigureData : protected boost::serialization::singleton<ConfigureData>
+class Configure : protected boost::serialization::singleton<Configure>
 {
 public:
 
-	static ConfigureData* GetInstancePtr()
+	static Configure* GetInstancePtr()
 	{
-		ConfigureData* ptr = &ConfigureData::get_mutable_instance();
+		Configure* ptr = &Configure::get_mutable_instance();
 		return ptr;
 	}
 
@@ -28,19 +28,19 @@ public:
 	void OutConfigureData();
 
 protected:
-	ConfigureData(void);
-	~ConfigureData(void);
+	Configure(void);
+	~Configure(void);
 private:
 	bool LoadConfigureFile(const std::string ConfigureFilePath);
 
-	boost::property_tree::ptree			m_initTree;
+	boost::property_tree::ptree			m_iniTree;
 	std::string							m_configFile;
 };
 
 template<typename _T>
-const _T ConfigureData::GetConfigureData(std::string key, const _T default_value)
+const _T Configure::GetConfigureData(std::string key, const _T default_value)
 {
-	return ini_tree_.get<_T>(key, default_value);
+	return m_iniTree.get<_T>(key, default_value);
 }
 
-#define ST_CONFIG() ConfigureData::GetInstancePtr()
+#define ST_CONFIG() Configure::GetInstancePtr()

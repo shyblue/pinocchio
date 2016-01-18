@@ -1,20 +1,23 @@
 #include "crow/crow.h"
 #include "spdlog/spdlog.h"
 #include <string>
-#include <tbb/concurrent_queue.hpp>
+#include <tbb/concurrent_queue.h>
+#include <tbb/concurrent_hash_map.h>
+
 #include <chrono>
+
+#include "config.h"
 
 class TUserMsg
 {
 public:
-	TUser(){ Load(); }
+	TUserMsg(){ Load(); }
 
-	std::string&
 
 private:
 	bool Load()
 	{
-		// Load user data from DB(or cache)
+		// Load user push message data from DB(or cache)
 	}
 
 	std::string m_userToken;
@@ -28,6 +31,10 @@ public:
 	TUserMap(){}
 
 private:
+    bool Load()
+    {
+        // Load user from DB
+    }
 
 };
 class TPinocchio
@@ -46,8 +53,9 @@ private:
 	bool Initialize();
 
 	crow::Crow<> m_app;
-	std::string m_port;
-	std::string m_ip;
+	const std::string& m_port;
+	const std::string& m_ip;
+	const std::string& m_serverName;
 
 	tbb::concurrent_hash_map<std::string,TUserMsg> m_msgData;
 };

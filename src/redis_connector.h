@@ -1,15 +1,22 @@
 #pragma once
 
-#include <boost/asio.hpp>
+#ifndef UTILITY_CONNECTOR_REDISCONNECTOR_H_
+#define UTILITY_CONNECTOR_REDISCONNECTOR_H_
+
 #include <boost/function.hpp>
-#include <map>
+#include <boost/bind.hpp>
+#include <boost/is_placeholder.hpp>
+
+#include "spdlog/spdlog.h"
+
+#include "container.h"
+#include "sync_session_impl.h"
 
 template<typename _key, typename _value>
 class Factory;
-
 class ErrorEndMaker{};
 
-class RedisConnector
+class RedisConnector : public SyncSessionImpl
 {
 public:
 	
@@ -21,8 +28,8 @@ public:
 
 	static const char* RC_IDENTIFIER;
 
-	typedef boost::function<bool (char*, bool&)	>														ProcessFunc;
-	typedef boost::shared_ptr<std::map<const char, ProcessFunc > >	FunctionContainer;
+	typedef boost::function<bool (char*, bool&)	>	ProcessFunc;
+	typedef boost::shared_ptr<MapContainer<const char, ProcessFunc > >	FunctionConatainer;
 
 	explicit RedisConnector(boost::asio::io_service* io_service);
 	explicit RedisConnector(boost::asio::io_service* io_service, std::string host, std::string port, const timeval timeout);
@@ -30,7 +37,7 @@ public:
 
 private:
 	virtual void EndpointSet(std::string& ipaddress, std::string& port);
-	virtual bool Parser(char* buffer, const size_t buffer_size);
+	virtual bool Paser(char* buffer, const size_t buffer_size);
 
 	void Initialize();
 
@@ -42,19 +49,18 @@ private:
 	bool MultiBulkProcessing(char* buffer, bool& retry);
 	bool IntProcessing(char* buffer, bool& retry);
 
-
 	char* IdentifierParseToString(char* buffer, std::string& value);
 	char* IdentifierParseToInt(char* buffer, int& value);
 	char* Bulk(char* buffer, bool& retry, std::string& value);
 
-	std::string					val_error_;
-	std::string					val_inline_;
-	std::string					val_bulk_;
-	std::vector<std::string>	val_multi_bulk_;
-	int32_t						val_int_;
-
-
-	FunctionConatainer			func_container_;
+	std::string					m_error;
+	std::string					m_inline;
+	std::string					m_bulk;
+	std::vector<std::string>	m_multiBulk;
+	int32_t						m_int;
+	FunctionConatainer			m_functionContainer;
 };
+
+#endif
 
 

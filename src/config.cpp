@@ -4,19 +4,19 @@
 #include <boost/filesystem.hpp>
 #include <boost/property_tree/ini_parser.hpp>
 
-ConfigureData::ConfigureData(void)
+Configure::Configure(void)
 {
 }
 
-ConfigureData::~ConfigureData(void)
+Configure::~Configure(void)
 {
 }
 
-bool ConfigureData::Initialize(const std::string config_file)
+bool Configure::Initialize(const std::string config_file)
 {
 	try
 	{
-		LoadCofigureFile(config_file);
+		LoadConfigureFile(config_file);
 	}
 	catch(std::exception& exception)
 	{
@@ -27,7 +27,7 @@ bool ConfigureData::Initialize(const std::string config_file)
 	return true;
 }
 
-bool ConfigureData::LoadConfigureFile( const std::string config_file)
+bool Configure::LoadConfigureFile( const std::string config_file)
 {
 	// 해당위치에서 Configure 파일을 읽는다.
 	boost::filesystem::path path(boost::filesystem::initial_path());
@@ -39,26 +39,26 @@ bool ConfigureData::LoadConfigureFile( const std::string config_file)
 		return false;
 	}
 
-	m_configFile = ConfigureFilePath;
-	boost::property_tree::ini_parser::read_ini(path.string().c_str(), m_initTree);
+	m_configFile = config_file;
+	boost::property_tree::ini_parser::read_ini(path.string().c_str(), m_iniTree);
 
 	OutConfigureData();
 
 	return true;
 }
 
-bool ConfigureData::WriteConfigureFile()
+bool Configure::WriteConfigureFile()
 {
-	boost::property_tree::ini_parser::write_ini(configure_path_.c_str(), m_initTree);
+	boost::property_tree::ini_parser::write_ini(m_configFile.c_str(), m_iniTree);
 	return true;
 }
 
-void ConfigureData::OutConfigureData()
+void Configure::OutConfigureData()
 {
 	auto log = spdlog::stdout_logger_mt("console");
 
 	log->info("[OUT CONFIGURE DATA]");
-	for(const auto& value : m_initTree)
+	for(const auto& value : m_iniTree)
 	{
 		std::string key = value.first;
 		for(const auto& detail_value : value.second)
@@ -68,15 +68,14 @@ void ConfigureData::OutConfigureData()
 	}
 }
 
-void ConfigureData::SetConfigureData(std::string key, uint32_t value)
+void Configure::SetConfigureData(std::string key, uint32_t value)
 {
-	m_initTree.erase(key);
-	m_initTree.put(key, value);
+	m_iniTree.erase(key);
+	m_iniTree.put(key, value);
 }
 
-void ConfigureData::SetConfigureData(std::string key, std::string value)
+void Configure::SetConfigureData(std::string key, std::string value)
 {
-	m_initTree.erase(key);
-	m_initTree.put(key, value);
+	m_iniTree.erase(key);
+	m_iniTree.put(key, value);
 }
-
