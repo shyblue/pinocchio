@@ -51,7 +51,7 @@ void RedisConnector::EndpointSet(std::string& ipaddress, std::string& port)
 	if(ipaddress == "0")
 	{
 		// defalut address : roof back
-		port.assign("127.0.0.1");
+		ipaddress.assign("127.0.0.1");
 	}
 	if(port == "0")
 	{
@@ -60,10 +60,10 @@ void RedisConnector::EndpointSet(std::string& ipaddress, std::string& port)
 	}
 }
 
-bool RedisConnector::Paser(char* buffer, const size_t buffer_size)
+bool RedisConnector::Parser(char *buffer, const size_t buffer_size)
 {
 	size_t availablebytes_transferred = 0;
-	size_t recvsize = 0;
+	size_t recv_size = 0;
 	size_t index = 1;
 
 	bool retry = false;
@@ -72,22 +72,22 @@ bool RedisConnector::Paser(char* buffer, const size_t buffer_size)
 	{
 		availablebytes_transferred = recv(GetSocket().native(), buffer + availablebytes_transferred , static_cast<int>(buffer_size - availablebytes_transferred), 0);
 	
-		recvsize += availablebytes_transferred;
+		recv_size += availablebytes_transferred;
 
 		if(availablebytes_transferred > 0)
 		{
-			char* passbuffer = buffer + index;
+			char* pass_buffer = buffer + index;
 
 			ProcessFunc* processing = m_functionContainer->GetValue(buffer[0]);
 
 			if(processing)
 			{
-				processing->operator()(passbuffer, retry);
+				processing->operator()(pass_buffer, retry);
 			}
 		}
 		else
 		{
-			ST_LOGGER.Error(L"[Redis Error] time out");
+			ST_LOGGER.Error("[Redis Error] time out");
 			return false;
 		}
 	} while(retry);
@@ -99,7 +99,7 @@ bool RedisConnector::ErrorProcessing(char* buffer, bool& retry)
 {
 	if (!IdentifierParseToString(buffer, m_error))
 	{
-		ST_LOGGER.Error(L"[RedisConnector] ErrorProcessing error");
+		ST_LOGGER.Error("[RedisConnector] ErrorProcessing error");
 		return true;
 	}
 
@@ -111,7 +111,7 @@ bool RedisConnector::InlineProcessing(char* buffer, bool& retry)
 
 	if (!IdentifierParseToString(buffer, m_inline))
 	{
-		ST_LOGGER.Error(L"[RedisConnector] InlineProcessing error");
+		ST_LOGGER.Error("[RedisConnector] InlineProcessing error");
 		return true;
 	}
 
@@ -123,7 +123,7 @@ bool RedisConnector::BulkProcessing(char* buffer, bool& retry)
 
 	if (!Bulk(buffer, retry, m_bulk))
 	{
-		ST_LOGGER.Error(L"[RedisConnector] BulkProcessing EndMaker error");
+		ST_LOGGER.Error("[RedisConnector] BulkProcessing EndMaker error");
 	}
 	return true;	
 }
@@ -142,15 +142,13 @@ bool RedisConnector::MultiBulkProcessing(char* buffer, bool& retry)
 
 		for(int i = 0; i < bulk_count; ++i)
 		{
-			int body_length = 0;
-
 			if(p[0] == RC_BULK)
 			{
 				p++;
 				std::string bulk;
 				if (!(p = Bulk(p, retry, bulk)))
 				{
-					ST_LOGGER.Error(L"[RedisConnector] MultiBulkProcessing error");
+					ST_LOGGER.Error("[RedisConnector] MultiBulkProcessing error");
 					return false;
 				}
 				m_multiBulk.push_back(bulk);		
@@ -165,7 +163,7 @@ bool RedisConnector::IntProcessing(char* buffer, bool& retry)
 {
 	if(!IdentifierParseToInt(buffer, m_int))
 	{
-		ST_LOGGER.Error(L"[RedisConnector] InlineProcessing error");
+		ST_LOGGER.Error("[RedisConnector] InlineProcessing error");
 		return false;
 	}
 
@@ -174,9 +172,10 @@ bool RedisConnector::IntProcessing(char* buffer, bool& retry)
 
 char* RedisConnector::IdentifierParseToString(char* buffer, std::string& value)
 {
-	char * p = 0;
+	char * p = nullptr;
+	p = strstr(buffer, RC_IDENTIFIER);
 
-	if (p = strstr(buffer, RC_IDENTIFIER))
+	if (p != nullptr)
 	{
 		value.assign(buffer, p); 
 		return p;
@@ -186,12 +185,13 @@ char* RedisConnector::IdentifierParseToString(char* buffer, std::string& value)
 }
 char* RedisConnector::IdentifierParseToInt(char* buffer, int& value)
 {
-	char * p = 0;
+	char * p = nullptr;
+	p = strstr(buffer, RC_IDENTIFIER);
 
-	if (p = strstr(buffer, RC_IDENTIFIER))
+	if (p != nullptr)
 	{
 		std::string num(buffer, p);
-		value = atoi(num.c_str());
+		value = std::stoi(num);
 		return p;
 	}
 
@@ -200,10 +200,11 @@ char* RedisConnector::IdentifierParseToInt(char* buffer, int& value)
 
 char* RedisConnector::Bulk(char* buffer, bool& retry, std::string& value)
 {
-	char * p = 0;
-	int body_length = 0, total_length = 0;
+	char * p = nullptr;
+	int body_length = 0;
 
-	if(p = IdentifierParseToInt(buffer, body_length))
+	p = IdentifierParseToInt(buffer, body_length);
+	if(p != nullptr)
 	{	
 		p += strlen(RC_IDENTIFIER);
 
@@ -218,7 +219,7 @@ char* RedisConnector::Bulk(char* buffer, bool& retry, std::string& value)
 	}
 	else
 	{
-		ST_LOGGER.Error(L"[RedisConnector] BulkProcessing EndMaker error");
+		ST_LOGGER.Error("[RedisConnector] BulkProcessing EndMaker error");
 	}
 
 	return p;

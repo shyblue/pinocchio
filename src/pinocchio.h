@@ -1,5 +1,6 @@
 #include "crow/crow.h"
-#include "spdlog/spdlog.h"
+#include "logger.h"
+
 #include <string>
 #include <tbb/concurrent_queue.h>
 #include <tbb/concurrent_hash_map.h>
@@ -7,6 +8,31 @@
 #include <chrono>
 
 #include "config.h"
+
+class PinocchioLogHandler : public crow::ILogHandler {
+public:
+	void log(std::string message, crow::LogLevel level) override {
+
+		switch (level)
+		{
+			case crow::LogLevel::DEBUG:
+				ST_LOGGER.Debug(message.c_str());
+				break;
+			case crow::LogLevel::INFO:
+				ST_LOGGER.Info(message.c_str());
+				break;
+			case crow::LogLevel::WARNING:
+				ST_LOGGER.Warn(message.c_str());
+				break;
+			case crow::LogLevel::ERROR:
+				ST_LOGGER.Error(message.c_str());
+				break;
+			case crow::LogLevel::CRITICAL:
+				ST_LOGGER.Fatal(message.c_str());
+				break;
+		}
+	}
+};
 
 class TUserMsg
 {
@@ -18,6 +44,7 @@ private:
 	bool Load()
 	{
 		// Load user push message data from DB(or cache)
+		return true;
 	}
 
 	std::string m_userToken;
@@ -34,9 +61,12 @@ private:
     bool Load()
     {
         // Load user from DB
+
+		return true;
     }
 
 };
+
 class TPinocchio
 {
 
@@ -53,9 +83,10 @@ private:
 	bool Initialize();
 
 	crow::Crow<> m_app;
-	const std::string& m_port;
 	const std::string& m_ip;
+	const std::string& m_port;
 	const std::string& m_serverName;
+	PinocchioLogHandler m_logHandler;
 
 	tbb::concurrent_hash_map<std::string,TUserMsg> m_msgData;
 };

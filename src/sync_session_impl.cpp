@@ -1,6 +1,6 @@
 #include <exception>
 
-#include "spdlog/spdlog.h"
+#include "logger.h"
 
 #include "header.h"
 #include "sync_session_impl.h"
@@ -51,8 +51,8 @@ void SyncSessionImpl::SetTimeWait()
 	if(m_recvTimeInterval.tv_sec != 0 || m_recvTimeInterval.tv_usec != 0)
 		recvret = setsockopt(GetSocket().native(), SOL_SOCKET, SO_RCVTIMEO, (const char*)&m_recvTimeInterval, sizeof(timeval) );
 
-	ST_LOGGER.Trace(L"sendret(%d) tv_sec(%d) tv_usec(%d)",sendret, m_sendTimeInterval.tv_sec, m_sendTimeInterval.tv_usec);
-	ST_LOGGER.Trace(L"recvret(%d) tv_sec(%d) tv_usec(%d)",recvret, m_recvTimeInterval.tv_sec, m_recvTimeInterval.tv_usec);
+	ST_LOGGER.Trace("sendret(%d) tv_sec(%d) tv_usec(%d)",sendret, m_sendTimeInterval.tv_sec, m_sendTimeInterval.tv_usec);
+	ST_LOGGER.Trace("recvret(%d) tv_sec(%d) tv_usec(%d)",recvret, m_recvTimeInterval.tv_sec, m_recvTimeInterval.tv_usec);
 }
 
 bool SyncSessionImpl::IsConnection()
@@ -69,7 +69,7 @@ bool SyncSessionImpl::Connect(std::string& ipaddress, std::string& port)
 {
 	if (IsConnection())
 	{
-		ST_LOGGER.Error(L"IsConnection");
+		ST_LOGGER.Error("IsConnection");
 		Close();
 	}
 
@@ -88,12 +88,12 @@ bool SyncSessionImpl::Connect(std::string& ipaddress, std::string& port)
 	}
 	catch (boost::system::system_error& error)
 	{
-		ST_LOGGER.Error(L"[Error] boost system error [%d]", error.code().value() );
+		ST_LOGGER.Error("[Error] boost system error [%d]", error.code().value() );
 		return false;
 	}
 	catch (std::exception& excetion)
 	{
-		ST_LOGGER.Error(L"exception what[%s]", excetion.what());
+		ST_LOGGER.Error("exception what[%s]", excetion.what());
 		return false;
 	}
 
@@ -109,13 +109,13 @@ bool SyncSessionImpl::Send(const char* buffer, const size_t buffer_size)
 
 	if (!IsConnection())
 	{
-		ST_LOGGER.Error(L"!IsConnection");
+		ST_LOGGER.Error("!IsConnection");
 		return false;
 	}
 
 	if (buffer_size <= 0 )
 	{
-		ST_LOGGER.Error(L"buffer_size[%d]", buffer_size);
+		ST_LOGGER.Error("buffer_size[%d]", buffer_size);
 		return false;
 	}
 
@@ -123,12 +123,12 @@ bool SyncSessionImpl::Send(const char* buffer, const size_t buffer_size)
 	{
 		for (int i = 0;i < try_count;++i)
 		{
-			int bytes_transferred = send(GetSocket().native(), (char*)(buffer + total_transferred), static_cast<int>(buffer_size - total_transferred), 0);		
+			ssize_t bytes_transferred = send(GetSocket().native(), (char*)(buffer + total_transferred), buffer_size - total_transferred, 0);
 
 			total_transferred += bytes_transferred;
 			if(bytes_transferred < 0)
 			{
-				ST_LOGGER.Error(L"ret(%d)", bytes_transferred);
+				ST_LOGGER.Error("ret(%d)", bytes_transferred);
 				return false;
 			}
 
@@ -141,18 +141,18 @@ bool SyncSessionImpl::Send(const char* buffer, const size_t buffer_size)
 	}
 	catch (boost::system::system_error& error)
 	{
-		ST_LOGGER.Error(L"error boost system error [%d]", error.code().value() );
+		ST_LOGGER.Error("error boost system error [%d]", error.code().value() );
 		return false;
 	}
 	catch (std::exception& exception)
 	{
-		ST_LOGGER.Error(L"exception what[%s]", exception.what());
+		ST_LOGGER.Error("exception what[%s]", exception.what());
 		return false;
 	}
 
 	if (total_transferred < buffer_size )
 	{
-		ST_LOGGER.Error(L"total_transferred[%d] < buffer_size[%d]", total_transferred, buffer_size);
+		ST_LOGGER.Error("total_transferred[%d] < buffer_size[%d]", total_transferred, buffer_size);
 		return false;
 	}
 
@@ -160,30 +160,30 @@ bool SyncSessionImpl::Send(const char* buffer, const size_t buffer_size)
 }
 
 
-bool SyncSessionImpl::Paser(char* buffer, const size_t buffer_size)
+bool SyncSessionImpl::Parser(char *buffer, const size_t buffer_size)
 {
-	size_t total_length = HeaderPaser(buffer, buffer_size);
-	if (total_length < 0)
+	size_t total_length = HeaderParser(buffer, buffer_size);
+	if (total_length < m_pHeader->GetHeaderSize())
 	{
-		ST_LOGGER.Error(L"!HeaderPaser");
+		ST_LOGGER.Error("!HeaderParser");
 		return false;
 	}
 
-	if (!BodyPaser(buffer, total_length))
+	if (!BodyParser(buffer, total_length))
 	{
-		ST_LOGGER.Error(L"!BodyPaser");
+		ST_LOGGER.Error("!BodyParser");
 		return false;
 	}
 
 	return true;
 }
 
-size_t SyncSessionImpl::HeaderPaser(char* buffer, const size_t buffer_size)
+size_t SyncSessionImpl::HeaderParser(char *buffer, const size_t buffer_size)
 {
-	int availablebytes_transferred = recv(GetSocket().native(), buffer , static_cast<int>(m_pHeader->GetHeaderSize()), MSG_PEEK);
+	ssize_t availablebytes_transferred = recv(GetSocket().native(), buffer , m_pHeader->GetHeaderSize(), MSG_PEEK);
 	if (availablebytes_transferred != m_pHeader->GetHeaderSize()) 
 	{
-		ST_LOGGER.Error(L"recv error");
+		ST_LOGGER.Error("recv error");
 		return 0;
 	}
 
@@ -191,15 +191,15 @@ size_t SyncSessionImpl::HeaderPaser(char* buffer, const size_t buffer_size)
 
 	if ( !m_pHeader->Validate() )
 	{
-		ST_LOGGER.Error(L"not Invalidheader");
+		ST_LOGGER.Error("not Invalidheader");
 	    return 0;
 	}
 
 	size_t total_length = m_pHeader->GetTotalSize();
 
-	if ( total_length < 0 )
+	if ( total_length < m_pHeader->GetHeaderSize() )
 	{
-		ST_LOGGER.Error(L"invalid total_length[%d]", total_length);
+		ST_LOGGER.Error("invalid total_length[%d]", total_length);
 		return 0;
 	}
 
@@ -213,17 +213,17 @@ size_t SyncSessionImpl::HeaderPaser(char* buffer, const size_t buffer_size)
 	return total_length;
 }
 
-bool SyncSessionImpl::BodyPaser(char* buffer, size_t& total_length)
+bool SyncSessionImpl::BodyParser(char *buffer, size_t &total_length)
 {
-	int bytes_transferred = 0;
+	size_t bytes_transferred = 0;
 
 	while ( total_length > bytes_transferred )
 	{
-		int transferred = recv(GetSocket().native(), (char*)(buffer + bytes_transferred), (static_cast<int>(total_length) - bytes_transferred), 0);
+		ssize_t transferred = recv(GetSocket().native(), (char*)(buffer + bytes_transferred), total_length - bytes_transferred, 0);
 
 		if(transferred <= 0)
 		{
-				ST_LOGGER.Error(L"data transferred(%d)", transferred);
+				ST_LOGGER.Error("data transferred(%d)", transferred);
 			    return false;	
 		}
 
@@ -232,7 +232,7 @@ bool SyncSessionImpl::BodyPaser(char* buffer, size_t& total_length)
 
 	if (!m_pHeader->CheckEndmarker(buffer, bytes_transferred))
 	{
-		ST_LOGGER.Error(L"endmarker not");
+		ST_LOGGER.Error("endmarker not");
 		return false;	
 	}
 
@@ -245,20 +245,20 @@ bool SyncSessionImpl::Recv(char* buffer, size_t buffer_size)
 	{	
 		if (!IsConnection())
 		{
-			ST_LOGGER.Error(L"!IsConnection");
+			ST_LOGGER.Error("!IsConnection");
 			return false;
 		}
 
-		Paser(buffer, buffer_size);
+		Parser(buffer, buffer_size);
 	}
 	catch(boost::system::system_error error)
 	{
-		ST_LOGGER.Error(L"error boost system error [%d]", error.code().value() );
+		ST_LOGGER.Error("error boost system error [%d]", error.code().value() );
 		return false;
 	}
 	catch(std::exception& exception)
 	{
-		ST_LOGGER.Error(L"exception what[%s]", exception.what());
+		ST_LOGGER.Error("exception what[%s]", exception.what());
 		return false;	
 	}
 

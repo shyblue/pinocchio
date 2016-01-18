@@ -3,7 +3,9 @@
 
 #include <boost/serialization/singleton.hpp>
 #include <string>
-#include "spdlog/spdlog.h"
+ #include <log4cxx/logger.h>
+#include <log4cxx/xml/domconfigurator.h>
+#include <log4cxx/helpers/exception.h>
 
 class Logger : public boost::serialization::singleton<Logger>
 {
@@ -31,7 +33,7 @@ protected:
 	virtual ~Logger(void);
 
 private:
-	 m_pLogger;
+	log4cxx::LoggerPtr m_pLogger;
 };
 
 #define ST_LOGGER Logger::get_mutable_instance()

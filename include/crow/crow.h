@@ -58,9 +58,21 @@ namespace crow
             return router_.new_rule_tagged<Tag>(std::move(rule));
         }
 
+        self_t& ip(std::string ip)
+        {
+            ip_  = ip;
+            return *this;
+        }
+
         self_t& port(std::uint16_t port)
         {
             port_ = port;
+            return *this;
+        }
+
+        self_t& name(std::string name)
+        {
+            name_ = name;
             return *this;
         }
 
@@ -94,7 +106,7 @@ namespace crow
             else
 #endif
             {
-                server_t server(this, port_, &middlewares_, concurrency_, nullptr);
+                server_t server(this, ip_,  port_, name_, &middlewares_, concurrency_, nullptr);
                 server.run();
             }
         }
@@ -185,9 +197,11 @@ namespace crow
         }
 
     private:
+        std::string ip_ = "0.0.0.0";
         uint16_t port_ = 80;
         uint16_t concurrency_ = 1;
 
+        std::string name_ = "CROW";
         Router router_;
 
         std::tuple<Middlewares...> middlewares_;

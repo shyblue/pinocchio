@@ -1,7 +1,6 @@
 #include <iostream>
-#include <stdarg.h>
 
-#include "util/logger.h"
+#include "logger.h"
 
 Logger::Logger(void)
 {
@@ -31,7 +30,7 @@ void Logger::Trace(const char* format, ...)
 	va_list args;
 	va_start(args, format);
 
-	vsprintf_s(log, kMaxBufferLength, format, args);
+	vsnprintf(log, kMaxBufferLength, format, args);
 
 	va_end(args);
 
@@ -45,7 +44,7 @@ void Logger::Debug(const char* format, ...)
 	va_list args;
 	va_start(args, format);
 
-	vsprintf_s(log, kMaxBufferLength, format, args);
+	vsnprintf(log, kMaxBufferLength, format, args);
 
 	va_end(args);
 	
@@ -59,7 +58,7 @@ void Logger::Info(const char* format, ...)
 	va_list args;
 	va_start(args, format);
 
-	vsprintf_s(log, kMaxBufferLength, format, args);
+	vsnprintf(log, kMaxBufferLength, format, args);
 
 	va_end(args);
 
@@ -73,7 +72,7 @@ void Logger::Warn(const char* format, ...)
 	va_list args;
 	va_start(args, format);
 
-	vsprintf_s(log, kMaxBufferLength, format, args);
+	vsnprintf(log, kMaxBufferLength, format, args);
 
 	va_end(args);
 
@@ -87,7 +86,7 @@ void Logger::Error(const char* format, ...)
 	va_list args;
 	va_start(args, format);
 
-	vsprintf_s(log, kMaxBufferLength, format, args);
+	vsnprintf(log, kMaxBufferLength, format, args);
 
 	va_end(args);
 
@@ -101,7 +100,7 @@ void Logger::Fatal(const char* format, ...)
 	va_list args;
 	va_start(args, format);
 
-	vsprintf_s(log, kMaxBufferLength, format, args);
+	vsnprintf(log, kMaxBufferLength, format, args);
 
 	va_end(args);
 	
@@ -115,7 +114,7 @@ void Logger::Trace(const wchar_t* format, ...)
 	va_list args;
 	va_start(args, format);
 
-	vswprintf_s(log, kMaxBufferLength, format, args);
+	vswprintf(log, kMaxBufferLength, format, args);
 
 	va_end(args);
 	
@@ -129,7 +128,7 @@ void Logger::Debug(const wchar_t* format, ...)
 	va_list args;
 	va_start(args, format);
 
-	vswprintf_s(log, kMaxBufferLength, format, args);
+	vswprintf(log, kMaxBufferLength, format, args);
 
 	va_end(args);
 
@@ -143,7 +142,7 @@ void Logger::Info(const wchar_t* format, ...)
 	va_list args;
 	va_start(args, format);
 
-	vswprintf_s(log, kMaxBufferLength, format, args);
+	vswprintf(log, kMaxBufferLength, format, args);
 
 	va_end(args);
 
@@ -157,7 +156,7 @@ void Logger::Warn(const wchar_t* format, ...)
 	va_list args;
 	va_start(args, format);
 
-	vswprintf_s(log, kMaxBufferLength, format, args);
+	vswprintf(log, kMaxBufferLength, format, args);
 
 	va_end(args);
 	
@@ -171,7 +170,7 @@ void Logger::Error(const wchar_t* format, ...)
 	va_list args;
 	va_start(args, format);
 
-	vswprintf_s(log, kMaxBufferLength, format, args);
+	vswprintf(log, kMaxBufferLength, format, args);
 
 	va_end(args);
 
@@ -185,7 +184,8 @@ void Logger::Fatal(const wchar_t* format, ...)
 	va_list args;
 	va_start(args, format);
 
-	vswprintf_s(log, kMaxBufferLength, format, args);
+
+	vswprintf(log, kMaxBufferLength, format, args);
 
 	va_end(args);
 

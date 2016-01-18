@@ -36,6 +36,17 @@ namespace crow
         {
         }
 
+        Server(Handler* handler, std::string ip, uint16_t port, std::string name,  std::tuple<Middlewares...>* middlewares = nullptr, uint16_t concurrency = 1, typename Adaptor::context* adaptor_ctx = nullptr)
+                : acceptor_(io_service_, tcp::endpoint(asio::ip::address::from_string(ip), port)),
+                  signals_(io_service_, SIGINT, SIGTERM),
+                  handler_(handler),
+                  concurrency_(concurrency),
+                  server_name_(name),
+                  port_(port),
+                  middlewares_(middlewares),
+                  adaptor_ctx_(adaptor_ctx)
+        {
+        }
         void run()
         {
             if (concurrency_ < 0)

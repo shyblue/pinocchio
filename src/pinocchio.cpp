@@ -1,14 +1,15 @@
 #include "pinocchio.h"
-#include "config.h"
 
 TPinocchio::TPinocchio(const std::string& ip, const std::string& port, const std::string& server_name)
-		: m_app(),m_ip(ip),m_port(port), m_serverName(server_name)
+		: m_app(),m_ip(ip),m_port(port), m_serverName(server_name), m_logHandler()
 {
 	Initialize();
 }
 
 bool TPinocchio::Initialize()
 {
+	crow::logger::setHandler(&m_logHandler);
+
 	AddRoute();
 	AddRouteRegist();
 	AddRouteSend();
@@ -106,8 +107,12 @@ bool TPinocchio::AddRoutePublishApiKey()
 	CROW_ROUTE(m_app,"/gcm/publish/ServerApiKey/<string>")
 	([](const std::string& base_key)
 	 {
-	 	if(base_key.length() < 10 || base_key.length() > 128 )
-		return crow::response(400);
+	 	if(base_key.length() < 10 || base_key.length() > 128 ) {
+			return crow::response(400);
+		}
+
+
+		 return crow::response(200);
 	 }
 	);
 
@@ -115,7 +120,9 @@ bool TPinocchio::AddRoutePublishApiKey()
 }
 bool TPinocchio::run()
 {
-	m_app.port(static_cast<uint16_t >(std::stoi(m_port)))
+	m_app.ip(m_ip)
+			.port(static_cast<uint16_t >(std::stoi(m_port)))
+			.name(m_serverName)
 		.multithreaded()
 		.run();
 

@@ -7,7 +7,7 @@
 #include <boost/bind.hpp>
 #include <boost/is_placeholder.hpp>
 
-#include "spdlog/spdlog.h"
+#include "logger.h"
 
 #include "container.h"
 #include "sync_session_impl.h"
@@ -37,7 +37,7 @@ public:
 
 private:
 	virtual void EndpointSet(std::string& ipaddress, std::string& port);
-	virtual bool Paser(char* buffer, const size_t buffer_size);
+	virtual bool Parser(char *buffer, const size_t buffer_size);
 
 	void Initialize();
 

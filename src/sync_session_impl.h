@@ -41,9 +41,9 @@ public:
 	const int32_t GetSendPacketNo();
 protected :
 	virtual void	EndpointSet(std::string& ipaddress, std::string& port);
-	virtual bool	Paser(char* buffer, const size_t buffer_size);
-	size_t			HeaderPaser(char* buffer, const size_t buffer_size);
-	bool			BodyPaser(char* buffer, size_t& total_length);
+	virtual bool	Parser(char *buffer, const size_t buffer_size);
+	size_t			HeaderParser(char *buffer, const size_t buffer_size);
+	bool			BodyParser(char *buffer, size_t &total_length);
 private:
 	void SetTimeWait();
 
