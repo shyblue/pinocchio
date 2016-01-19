@@ -16,7 +16,8 @@ int main(void)
 	TPinocchio app(
 			ST_CONFIG()->GetConfigureData<std::string>("SERVER_IP","0.0.0.0"),
 			ST_CONFIG()->GetConfigureData<std::string>("SERVER_PORT","18080"),
-			ST_CONFIG()->GetConfigureData<std::string>("SERVER_NAME","PINOCCHIO")
+			ST_CONFIG()->GetConfigureData<std::string>("SERVER_NAME","PINOCCHIO"),
+			ST_CONFIG()->GetConfigureData<std::string>("AUTH_KEY","AIzaSyCaV3Ymy5IPqnxXVkrYmwG0IpB5mNj1ZZ8")
 	);
 
 	tbb::tbb_thread appThread([&app](){ app.run(); });

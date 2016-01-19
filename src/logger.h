@@ -3,7 +3,7 @@
 
 #include <boost/serialization/singleton.hpp>
 #include <string>
- #include <log4cxx/logger.h>
+#include <log4cxx/logger.h>
 #include <log4cxx/xml/domconfigurator.h>
 #include <log4cxx/helpers/exception.h>
 

@@ -71,7 +71,7 @@ class TPinocchio
 {
 
 public:
-	TPinocchio(const std::string& ip, const std::string& port, const std::string& server_name);
+	TPinocchio(const std::string& ip, const std::string& port, const std::string& server_name, const std::string& auth_key);
 	bool run();
 private:
 
@@ -86,6 +86,7 @@ private:
 	const std::string& m_ip;
 	const std::string& m_port;
 	const std::string& m_serverName;
+	const std::string& m_authKey;
 	PinocchioLogHandler m_logHandler;
 
 	tbb::concurrent_hash_map<std::string,TUserMsg> m_msgData;

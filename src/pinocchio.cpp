@@ -1,7 +1,8 @@
 #include "pinocchio.h"
+#include <boost/algorithm/string.hpp>
 
-TPinocchio::TPinocchio(const std::string& ip, const std::string& port, const std::string& server_name)
-		: m_app(),m_ip(ip),m_port(port), m_serverName(server_name), m_logHandler()
+TPinocchio::TPinocchio(const std::string& ip, const std::string& port, const std::string& server_name, const std::string& auth_key)
+		: m_app(),m_ip(ip),m_port(port), m_serverName(server_name), m_authKey(auth_key), m_logHandler()
 {
 	Initialize();
 }
@@ -51,19 +52,19 @@ bool TPinocchio::AddRouteRegist()
 bool TPinocchio::AddRouteSend()
 {
 	CROW_ROUTE(m_app,"/gcm/send").methods("POST"_method)
-	([](const crow::request& req)
+	([this](const crow::request& req)
 	{
 		std::string server_key = req.get_header_value("Authorization");
 		std::ostringstream os;
 
 		std::vector<std::string> fields;
 		boost::split(fields, server_key, boost::is_any_of("="));
-		/*region Description
-		if(fields[0].lower() != "key") return crow::response(400);
-		if(!g_ServerApiKey.find(fields[1].empty())) return crow::response(400);
 
+		// if(boost::algorithm::to_lower(fields[0]) != "key") return crow::response(400);
+		if(!m_authKey.find(fields[1].empty())) return crow::response(400);
+/*
 		tbb::concurrent_hash_map<std::string,TUserMsg>::accessor a;
-		if(map.find(a,))
+		if(m_userMap.find(a,key))
 		{
 			// fields[1] is Server Api Key
 			// find server api key
@@ -73,7 +74,7 @@ bool TPinocchio::AddRouteSend()
 			}
 			fields[1].trim();
 		}
-		*/
+*/
 		return crow::response{os.str()};
 	}
 	);
@@ -123,8 +124,8 @@ bool TPinocchio::run()
 	m_app.ip(m_ip)
 			.port(static_cast<uint16_t >(std::stoi(m_port)))
 			.name(m_serverName)
-		.multithreaded()
-		.run();
+			.multithreaded()
+			.run();
 
 	return true;
 }
