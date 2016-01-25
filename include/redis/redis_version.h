@@ -1,7 +1,4 @@
-/*
- * Copyright (C) Alex Nekipelov (alex@nekipelov.net)
- * License: MIT
- */
+#pragma once
 
 #ifndef REDISCLIENT_VERSION_H
 #define REDISCLIENT_VERSION_H

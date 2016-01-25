@@ -1,7 +1,4 @@
-/*
- * Copyright (C) Alex Nekipelov (alex@nekipelov.net)
- * License: MIT
- */
+#pragma once
 
 #ifndef REDISCLIENT_CONFIG_H
 #define REDISCLIENT_CONFIG_H
