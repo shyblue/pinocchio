@@ -92,7 +92,7 @@ bool TPinocchio::AddRouteSend()
 		if(!m_spDbMgr->AddMsg(token,msg))
 		{
 			ST_LOGGER.Trace("Could not push message[%s] to user[%s]",msg.c_str(),token.c_str());
-			return crow::response(407);
+			return crow::response(408);
 		}
 
 		return crow::response(200);
@@ -118,8 +118,8 @@ bool TPinocchio::AddRouteRecv()
 		std::string msg;
 		if(!m_spDbMgr->GetMsg(token,msg))
 		{
-			ST_LOGGER.Trace("[No more msg to [%s]",token.c_str());
-			return crow::response(200);
+			ST_LOGGER.Trace("[Get Message DB Error [%s]",token.c_str());
+			return crow::response(408);
 		}
 		// response msg
 		crow::json::wvalue x;
