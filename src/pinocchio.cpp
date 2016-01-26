@@ -59,7 +59,7 @@ bool TPinocchio::AddRouteSend()
 		boost::split(fields, server_key, boost::is_any_of("="));
 
 		// if(boost::algorithm::to_lower(fields[0]) != "key") return crow::response(400);
-		if(!m_authKey.find(fields[1])) return crow::response(405);
+		//if(!m_authKey.find(fields[1])) return crow::response(405);
 
 		auto x = crow::json::load(req.body);
 		if(!x)
