@@ -58,7 +58,8 @@ namespace crow
 
             logger(std::string prefix, LogLevel level) : level_(level) {
     #ifdef CROW_ENABLE_LOGGING
-                    stringstream_ << "(" << timestamp() << ") [" << prefix << "] ";
+
+                   // stringstream_ << "(" << timestamp() << ") [" << prefix << "] ";
     #endif
 
             }

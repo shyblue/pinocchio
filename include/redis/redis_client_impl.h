@@ -1,10 +1,4 @@
-/*
- * Copyright (C) Alex Nekipelov (alex@nekipelov.net)
- * License: MIT
- */
-
-#ifndef REDISCLIENT_REDISCLIENTIMPL_H
-#define REDISCLIENT_REDISCLIENTIMPL_H
+#pragma once
 
 #include <boost/array.hpp>
 #include <boost/function.hpp>
@@ -18,43 +12,42 @@
 #include <queue>
 #include <map>
 
-#include "../redisparser.h"
-#include "../redisbuffer.h"
-#include "../config.h"
+#include "redis/redis_parser.h"
+#include "redis/redis_buffer.h"
 
 class RedisClientImpl : public boost::enable_shared_from_this<RedisClientImpl> {
 public:
-    REDIS_CLIENT_DECL RedisClientImpl(boost::asio::io_service &ioService);
-    REDIS_CLIENT_DECL ~RedisClientImpl();
+     RedisClientImpl(boost::asio::io_service &ioService);
+     ~RedisClientImpl();
 
-    REDIS_CLIENT_DECL void handleAsyncConnect(
+     void handleAsyncConnect(
             const boost::system::error_code &ec,
             const boost::function<void(bool, const std::string &)> &handler);
 
-    REDIS_CLIENT_DECL void close();
+     void close();
 
-    REDIS_CLIENT_DECL static std::vector<char> makeCommand(const std::vector<RedisBuffer> &items);
+     static std::vector<char> makeCommand(const std::vector<RedisBuffer> &items);
 
-    REDIS_CLIENT_DECL RedisValue doSyncCommand(const std::vector<RedisBuffer> &buff);
+     RedisValue doSyncCommand(const std::vector<RedisBuffer> &buff);
 
-    REDIS_CLIENT_DECL void doAsyncCommand(
+     void doAsyncCommand(
             const std::vector<char> &buff,
             const boost::function<void(const RedisValue &)> &handler);
 
-    REDIS_CLIENT_DECL void sendNextCommand();
-    REDIS_CLIENT_DECL void processMessage();
-    REDIS_CLIENT_DECL void doProcessMessage(const RedisValue &v);
-    REDIS_CLIENT_DECL void asyncWrite(const boost::system::error_code &ec, const size_t);
-    REDIS_CLIENT_DECL void asyncRead(const boost::system::error_code &ec, const size_t);
+     void sendNextCommand();
+     void processMessage();
+     void doProcessMessage(const RedisValue &v);
+     void asyncWrite(const boost::system::error_code &ec, const size_t);
+     void asyncRead(const boost::system::error_code &ec, const size_t);
 
-    REDIS_CLIENT_DECL void onRedisError(const RedisValue &);
-    REDIS_CLIENT_DECL void defaulErrorHandler(const std::string &s);
-    REDIS_CLIENT_DECL static void ignoreErrorHandler(const std::string &s);
+     void onRedisError(const RedisValue &);
+     void defaulErrorHandler(const std::string &s);
+     static void ignoreErrorHandler(const std::string &s);
 
-    REDIS_CLIENT_DECL static void append(std::vector<char> &vec, const RedisBuffer &buf);
-    REDIS_CLIENT_DECL static void append(std::vector<char> &vec, const std::string &s);
-    REDIS_CLIENT_DECL static void append(std::vector<char> &vec, const char *s);
-    REDIS_CLIENT_DECL static void append(std::vector<char> &vec, char c);
+     static void append(std::vector<char> &vec, const RedisBuffer &buf);
+     static void append(std::vector<char> &vec, const std::string &s);
+     static void append(std::vector<char> &vec, const char *s);
+     static void append(std::vector<char> &vec, char c);
     template<size_t size>
     static inline void append(std::vector<char> &vec, const char (&s)[size]);
 
@@ -105,10 +98,3 @@ inline void RedisClientImpl::post(const Handler &handler)
 {
     strand.post(handler);
 }
-
-
-#ifdef REDIS_CLIENT_HEADER_ONLY
-#include "redisclientimpl.cpp"
-#endif
-
-#endif // REDISCLIENT_REDISCLIENTIMPL_H

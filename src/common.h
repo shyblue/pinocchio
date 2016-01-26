@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef __COMMON_H_
-#define __COMMON_H_
-
 #ifdef _WIN32
 #include <cstdint>
 #include <WinSock2.h>
@@ -22,5 +19,3 @@
 #define KBYTEUNIT 10
 #define MBYTEUNIT 20
 #define GBYTEUNIT 30
-
-#endif // __COMMON_H_

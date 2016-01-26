@@ -1,14 +1,6 @@
-/*
- * Copyright (C) Alex Nekipelov (alex@nekipelov.net)
- * License: MIT
- */
-
-#ifndef REDISCLIENT_REDISVALUE_CPP
-#define REDISCLIENT_REDISVALUE_CPP
-
 #include <string.h>
 #include <boost/lexical_cast.hpp>
-#include "../redisvalue.h"
+#include "redis/redis_value.h"
 
 RedisValue::RedisValue()
     : value(NullTag()), error(false)
@@ -160,5 +152,3 @@ bool RedisValue::operator != (const RedisValue &rhs) const
 {
     return !(value == rhs.value);
 }
-
-#endif // REDISCLIENT_REDISVALUE_CPP

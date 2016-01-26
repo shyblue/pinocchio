@@ -1,21 +1,14 @@
-/*
- * Copyright (C) Alex Nekipelov (alex@nekipelov.net)
- * License: MIT
- */
-
-#ifndef REDISCLIENT_REDISPARSER_H
-#define REDISCLIENT_REDISPARSER_H
+#pragma once
 
 #include <stack>
 #include <vector>
 
-#include "redisvalue.h"
-#include "config.h"
+#include "redis_value.h"
 
 class RedisParser
 {
 public:
-    REDIS_CLIENT_DECL RedisParser();
+     RedisParser();
 
     enum ParseResult {
         Completed,
@@ -23,13 +16,13 @@ public:
         Error,
     };
 
-    REDIS_CLIENT_DECL std::pair<size_t, ParseResult> parse(const char *ptr, size_t size);
+     std::pair<size_t, ParseResult> parse(const char *ptr, size_t size);
 
-    REDIS_CLIENT_DECL RedisValue result();
+     RedisValue result();
 
 protected:
-    REDIS_CLIENT_DECL std::pair<size_t, ParseResult> parseChunk(const char *ptr, size_t size);
-    REDIS_CLIENT_DECL std::pair<size_t, ParseResult> parseArray(const char *ptr, size_t size);
+     std::pair<size_t, ParseResult> parseChunk(const char *ptr, size_t size);
+     std::pair<size_t, ParseResult> parseArray(const char *ptr, size_t size);
 
     static inline bool isChar(int c)
     {
@@ -76,9 +69,3 @@ private:
     static const char bulkReply = '$';
     static const char arrayReply = '*';
 };
-
-#ifdef REDIS_CLIENT_HEADER_ONLY
-#include "impl/redisparser.cpp"
-#endif
-
-#endif // REDISCLIENT_REDISPARSER_H

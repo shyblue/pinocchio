@@ -1,14 +1,6 @@
-/*
- * Copyright (C) Alex Nekipelov (alex@nekipelov.net)
- * License: MIT
- */
+#pragma once
 
-#ifndef REDISCLIENT_REDISCLIENT_H
-#define REDISCLIENT_REDISCLIENT_H
-
-#include "redisasyncclient.h"
+#include "redis_async_client.h"
 
 // backward compatibility
 typedef RedisAsyncClient RedisClient;
-
-#endif // REDISCLIENT_REDISCLIENT_H

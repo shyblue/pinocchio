@@ -1,15 +1,7 @@
-/*
- * Copyright (C) Alex Nekipelov (alex@nekipelov.net)
- * License: MIT
- */
-
-#ifndef REDISCLIENT_REDISPARSER_CPP
-#define REDISCLIENT_REDISPARSER_CPP
-
 #include <sstream>
 #include <assert.h>
 
-#include "../redisparser.h"
+#include "redis/redis_parser.h"
 
 RedisParser::RedisParser()
     : state(Start), bulkSize(0)
@@ -463,5 +455,3 @@ RedisValue RedisParser::result()
         return RedisValue();
     }
 }
-
-#endif // REDISCLIENT_REDISPARSER_CPP

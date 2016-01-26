@@ -1,15 +1,8 @@
-/*
- * Copyright (C) Alex Nekipelov (alex@nekipelov.net)
- * License: MIT
- */
-
-#ifndef REDISASYNCCLIENT_REDISASYNCCLIENT_CPP
-#define REDISASYNCCLIENT_REDISASYNCCLIENT_CPP
-
 #include <boost/make_shared.hpp>
 #include <boost/bind.hpp>
+#include <boost/asio/ip/tcp.hpp>
 
-#include "../redisclient.h"
+#include "redis/redis_client.h"
 
 RedisAsyncClient::RedisAsyncClient(boost::asio::io_service &ioService)
     : pimpl(boost::make_shared<RedisClientImpl>(boost::ref(ioService)))
@@ -378,5 +371,3 @@ bool RedisAsyncClient::stateValid() const
 
     return true;
 }
-
-#endif // REDISASYNCCLIENT_REDISASYNCCLIENT_CPP

@@ -1,18 +1,10 @@
-/*
- * Copyright (C) Alex Nekipelov (alex@nekipelov.net)
- * License: MIT
- */
-
-#ifndef REDISCLIENT_REDISCLIENTIMPL_CPP
-#define REDISCLIENT_REDISCLIENTIMPL_CPP
-
 #include <boost/asio/write.hpp>
 #include <boost/bind.hpp>
 #include <boost/lexical_cast.hpp>
 
 #include <algorithm>
 
-#include "redisclientimpl.h"
+#include "redis/redis_client_impl.h"
 
 RedisClientImpl::RedisClientImpl(boost::asio::io_service &ioService)
     : state(NotConnected), strand(ioService), socket(ioService), subscribeSeq(0)
@@ -323,5 +315,3 @@ void RedisClientImpl::append(std::vector<char> &vec, char c)
     vec.resize(vec.size() + 1);
     vec[vec.size() - 1] = c;
 }
-
-#endif // REDISCLIENT_REDISCLIENTIMPL_CPP

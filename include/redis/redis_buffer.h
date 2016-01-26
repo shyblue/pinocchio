@@ -1,18 +1,9 @@
-/*
- * Copyright (C) Alex Nekipelov (alex@nekipelov.net)
- * License: MIT
- */
-
-
-#ifndef REDISSYNCCLIENT_REDISBUFFER_H
-#define REDISSYNCCLIENT_REDISBUFFER_H
+#pragma once
 
 #include <boost/noncopyable.hpp>
 
 #include <string>
 #include <list>
-
-#include "config.h"
 
 class RedisBuffer
 {
@@ -66,6 +57,4 @@ const char *RedisBuffer::data() const
 {
     return ptr_;
 }
-
-#endif //REDISSYNCCLIENT_REDISBUFFER_H 
 

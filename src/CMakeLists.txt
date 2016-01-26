@@ -2,6 +2,11 @@ cmake_minimum_required(VERSION 2.8)
 project (pinocchio)
 
 set(SOURCES
+		redis_value.cpp
+		redis_parser.cpp
+		redis_client_impl.cpp
+		redis_sync_client.cpp
+		redis_async_client.cpp
 		main.cpp
 		pinocchio.cpp
 		config.cpp
