@@ -1,9 +1,9 @@
-﻿#include "config.h"
-#include "spdlog/spdlog.h"
-
-#include <boost/filesystem.hpp>
+﻿#include <boost/filesystem.hpp>
 #include <boost/property_tree/ini_parser.hpp>
+
+#include "config.h"
 #include "logger.h"
+
 Configure::Configure(void)
 {
 }
@@ -35,7 +35,7 @@ bool Configure::LoadConfigureFile( const std::string config_file)
 	if(!boost::filesystem::exists(boost::filesystem::path(path) ) )
 	{
 		// ERR_CONFIGURE_NOTPATH  Error 기록
-		ST_LOGGER.Info("[ConfigureData][LoadCofigureFile] Nonexist File[%s]", path.c_str() );
+		ST_LOGGER.Info("[ConfigureData][LoadCofigureFile] Nonexist File[%s]", path.string().c_str() );
 		return false;
 	}
 
@@ -55,14 +55,14 @@ bool Configure::WriteConfigureFile()
 
 void Configure::OutConfigureData()
 {
-	for(const auto& value : m_iniTree)
+	ST_LOGGER.Trace("[CONFIGURE DATA] [%s]", m_configFile.c_str());
+	for(boost::property_tree::ptree::value_type& v : m_iniTree)
 	{
-		std::string key = value.first;
-		for(const auto& detail_value : value.second)
-		{
-			ST_LOGGER.Trace("[%s] %s %s",key.c_str(),detail_value.first.c_str(), detail_value.second.data().c_str());
-		}
+		std::string key = v.first;
+		std::string value = v.second.get_value<std::string>();
+		ST_LOGGER.Trace("    [%s] %s",key.c_str(),value.c_str());
 	}
+	ST_LOGGER.Trace("[END CONFIGURE DATA]");
 }
 
 void Configure::SetConfigureData(std::string key, uint32_t value)

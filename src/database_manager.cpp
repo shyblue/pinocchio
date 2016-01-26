@@ -54,7 +54,7 @@ void TDatabaseManager::onConnected(bool ok, const std::string &err_msg)
     }
     else
     {
-        ST_LOGGER.Error("Can't connect to redis: %s" ,err_msg.c_str());
+        ST_LOGGER.Error("Can't connect to redis : %s:%s (%s)",m_ip.c_str(),m_port.c_str(),err_msg.c_str());
         m_ioService.stop();
     }
 }
