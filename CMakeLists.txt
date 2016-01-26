@@ -9,7 +9,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
 find_package(Tcmalloc)
 find_package(Threads)
-find_package(Boost 1.52 COMPONENTS date_time filesystem system thread regex
+find_package(Boost 1.57 COMPONENTS date_time filesystem system thread regex
 	REQUIRED)
 find_package(TBB)
 find_package(LOG4CXX)

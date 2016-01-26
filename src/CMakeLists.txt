@@ -10,7 +10,7 @@ set(SOURCES
 		main.cpp
 		pinocchio.cpp
 		config.cpp
-		logger.cpp )
+		logger.cpp database_manager.cpp database_manager.h)
 
 add_executable(pinocchio ${SOURCES})
 target_link_libraries(pinocchio ${TBB_LIBRARIES})

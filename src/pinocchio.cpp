@@ -22,7 +22,7 @@ bool TPinocchio::Initialize()
 
 bool TPinocchio::AddRoute()
 {
-	CROW_ROUTE(m_app,"/").name("pinocchio")
+	ROUTE(m_app,"/").name("pinocchio")
 	( [] { return "This is pinocchio!"; } );
 
 	return true;
@@ -30,7 +30,7 @@ bool TPinocchio::AddRoute()
 
 bool TPinocchio::AddRouteRegist()
 {
-	CROW_ROUTE(m_app,"/regist/<string>")
+	ROUTE(m_app,"/regist/<string>")
 	([&](const std::string& token)
 	 {
 	 	if(token.length() < 40 || token.length() > 128)
@@ -51,7 +51,7 @@ bool TPinocchio::AddRouteRegist()
 
 bool TPinocchio::AddRouteSend()
 {
-	CROW_ROUTE(m_app,"/gcm/send").methods("POST"_method)
+	ROUTE(m_app,"/gcm/send").methods("POST"_method)
 	([this](const crow::request& req)
 	{
 		std::string server_key = req.get_header_value("Authorization");
@@ -84,7 +84,7 @@ bool TPinocchio::AddRouteSend()
 
 bool TPinocchio::AddRouteRecv()
 {
-	CROW_ROUTE(m_app,"/gcm/recv/<string>")
+	ROUTE(m_app,"/gcm/recv/<string>")
 	([](const std::string& token)
  	 {
 		 if(token.length()>128) return crow::response(400);
@@ -105,7 +105,7 @@ bool TPinocchio::AddRouteRecv()
 
 bool TPinocchio::AddRoutePublishApiKey()
 {
-	CROW_ROUTE(m_app,"/gcm/publish/ServerApiKey/<string>")
+	ROUTE(m_app,"/gcm/publish/ServerApiKey/<string>")
 	([](const std::string& base_key)
 	 {
 	 	if(base_key.length() < 10 || base_key.length() > 128 ) {

@@ -1,6 +1,6 @@
 #include "config.h"
 #include "pinocchio.h"
-#include "logger.h"
+#include "database_manager.h"
 
 #include <tbb/tbb_thread.h>
 
@@ -13,6 +13,11 @@ int main(void)
 
 	ST_CONFIG()->Initialize("./pinocchio.conf");
 
+	TDatabaseManager db(
+			ST_CONFIG()->GetConfigureData<std::string>("REDIS_IP","127.0.0.1"),
+			ST_CONFIG()->GetConfigureData<std::string>("REDIS_PORT","6379")
+	);
+
 	TPinocchio app(
 			ST_CONFIG()->GetConfigureData<std::string>("SERVER_IP","0.0.0.0"),
 			ST_CONFIG()->GetConfigureData<std::string>("SERVER_PORT","18080"),
@@ -20,7 +25,7 @@ int main(void)
 			ST_CONFIG()->GetConfigureData<std::string>("AUTH_KEY","AIzaSyCaV3Ymy5IPqnxXVkrYmwG0IpB5mNj1ZZ8")
 	);
 
-	tbb::tbb_thread appThread([&app](){ app.run(); });
+	tbb::tbb_thread appThread([&](){app.run(); });
 	appThread.join();
 
 	return 0;
