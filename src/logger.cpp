@@ -1,4 +1,5 @@
 #include <iostream>
+#include <stdarg.h>
 
 #include "logger.h"
 

@@ -10,7 +10,9 @@ set(SOURCES
 		main.cpp
 		pinocchio.cpp
 		config.cpp
-		logger.cpp database_manager.cpp database_manager.h)
+		logger.cpp
+		database_manager.cpp
+		user_manager.cpp)
 
 add_executable(pinocchio ${SOURCES})
 target_link_libraries(pinocchio ${TBB_LIBRARIES})
@@ -42,6 +44,10 @@ add_custom_command(OUTPUT log
 		DEPENDS ${PROJECT_SOURCE_DIR}/conf/log4cxx.xml )
 add_custom_target(conf_copy ALL DEPENDS conf log)
 
+add_custom_command(OUTPUT test
+        COMMAND ${CMAKE_COMMAND} -E
+        copy ${PROJECT_SOURCE_DIR}/test/send_msg.sh ${CMAKE_CURRENT_BINARY_DIR}/
+        DEPENDS ${PROJECT_SOURCE_DIR}/test/send_msg.sh )
 add_custom_command(OUTPUT script
 		COMMAND ${CMAKE_COMMAND} -E
 		copy ${PROJECT_SOURCE_DIR}/script/runserver.sh ${CMAKE_CURRENT_BINARY_DIR}/
@@ -50,4 +56,4 @@ add_custom_command(OUTPUT fabric
 		COMMAND ${CMAKE_COMMAND} -E
 		copy ${PROJECT_SOURCE_DIR}/script/fabfile.py ${CMAKE_CURRENT_BINARY_DIR}/
 		DEPENDS ${PROJECT_SOURCE_DIR}/script/fabfile.py )
-add_custom_target(script_copy ALL DEPENDS script fabric)
+add_custom_target(script_copy ALL DEPENDS test script fabric)

@@ -3,6 +3,7 @@
 #include <boost/lexical_cast.hpp>
 
 #include <algorithm>
+#include <iostream>
 
 #include "redis/redis_client_impl.h"
 

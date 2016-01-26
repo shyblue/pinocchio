@@ -1,8 +1,7 @@
 #include "pinocchio.h"
-#include <boost/algorithm/string.hpp>
 
-TPinocchio::TPinocchio(const std::string& ip, const std::string& port, const std::string& server_name, const std::string& auth_key)
-		: m_app(),m_ip(ip),m_port(port), m_serverName(server_name), m_authKey(auth_key), m_logHandler()
+TPinocchio::TPinocchio(const std::string& ip, const std::string& port, const std::string& server_name, const std::string& auth_key, DbMgrPtr db_mgr_ptr)
+		: m_app(),m_ip(ip),m_port(port), m_serverName(server_name), m_authKey(auth_key), m_logHandler(), m_spDbMgr(db_mgr_ptr), m_userMgr(m_spDbMgr)
 {
 	Initialize();
 }
@@ -36,12 +35,11 @@ bool TPinocchio::AddRouteRegist()
 	 	if(token.length() < 40 || token.length() > 128)
 			return crow::response(400);
 
-		 // Find user token
-
-		 // if exist error
-
-		 // else add user token
-
+		 if(!m_spDbMgr->AddMember(token))
+		 {
+			 ST_LOGGER.Error("Could not Add userToken [%s]",token.c_str());
+			 return crow::response(404);
+		 }
 		return crow::response(200);
 	 }
 	 );
@@ -52,30 +50,52 @@ bool TPinocchio::AddRouteRegist()
 bool TPinocchio::AddRouteSend()
 {
 	ROUTE(m_app,"/gcm/send").methods("POST"_method)
-	([this](const crow::request& req)
+	([&](const crow::request& req)
 	{
 		std::string server_key = req.get_header_value("Authorization");
-		std::ostringstream os;
 
+		ST_LOGGER.Trace("[Authorization : %s]",server_key.c_str());
 		std::vector<std::string> fields;
 		boost::split(fields, server_key, boost::is_any_of("="));
 
 		// if(boost::algorithm::to_lower(fields[0]) != "key") return crow::response(400);
-		if(!m_authKey.find(fields[1].empty())) return crow::response(400);
-/*
-		tbb::concurrent_hash_map<std::string,TUserMsg>::accessor a;
-		if(m_userMap.find(a,key))
+		if(!m_authKey.find(fields[1])) return crow::response(405);
+
+		auto x = crow::json::load(req.body);
+		if(!x)
 		{
-			// fields[1] is Server Api Key
-			// find server api key
-			// if find
-			{
-				// send
-			}
-			fields[1].trim();
+			ST_LOGGER.Trace("[POSTED JSON]");
+			ST_LOGGER.Trace("%s",req.body.c_str());
+			ST_LOGGER.Trace("[POSTED JSON END]");
+			return crow::response(406);
 		}
-*/
-		return crow::response{os.str()};
+
+		std::stringstream to,data;
+		to << x["to"];
+		ST_LOGGER.Trace("%s",to.str().c_str());
+		std::string token( to.str() );
+		if(token.front()=='"')
+		{
+			token.erase(0,1);
+			token.erase(token.size()-1);
+		}
+
+		if(!m_spDbMgr->IsMember(token) )
+		{
+			ST_LOGGER.Trace("Token not found in userToken [%s]",token.c_str());
+			return crow::response(407);
+		}
+
+		data << x["data"];
+		ST_LOGGER.Trace("%s",data.str().c_str());
+		std::string msg( data.str() );
+		if(!m_spDbMgr->AddMsg(token,msg))
+		{
+			ST_LOGGER.Trace("Could not push message[%s] to user[%s]",msg.c_str(),token.c_str());
+			return crow::response(407);
+		}
+
+		return crow::response(200);
 	}
 	);
 
@@ -85,19 +105,28 @@ bool TPinocchio::AddRouteSend()
 bool TPinocchio::AddRouteRecv()
 {
 	ROUTE(m_app,"/gcm/recv/<string>")
-	([](const std::string& token)
- 	 {
-		 if(token.length()>128) return crow::response(400);
-		 return crow::response(200);
-	 }
+	([&](const std::string& token) {
+		if (token.length() > 128) return crow::response(400);
 
-	 // find user
+		if (!m_spDbMgr->IsMember(token))
+		{
+			ST_LOGGER.Trace("[Could not find userToken [%s]", token.c_str());
+			return crow::response(407);
+		}
 
-	// can't find user response 400
+		// get user's msg
+		std::string msg;
+		if(!m_spDbMgr->GetMsg(token,msg))
+		{
+			ST_LOGGER.Trace("[No more msg to [%s]",token.c_str());
+			return crow::response(200);
+		}
+		// response msg
+		crow::json::wvalue x;
+		x["data"]=msg;
 
-	// get user's msg
-	// response msg
-
+		return crow::response(x);
+	}
 	);
 
 	return true;

@@ -8,6 +8,8 @@
 #include <chrono>
 
 #include "config.h"
+#include "database_manager.h"
+#include "user_manager.h"
 
 class PinocchioLogHandler : public crow::ILogHandler {
 public:
@@ -34,44 +36,13 @@ public:
 	}
 };
 
-class TUserMsg
-{
-public:
-	TUserMsg(){ Load(); }
-
-
-private:
-	bool Load()
-	{
-		// Load user push message data from DB(or cache)
-		return true;
-	}
-
-	std::string m_userToken;
-	tbb::concurrent_bounded_queue<std::string> m_msgQueue;
-	std::chrono::system_clock::time_point m_lastTouch;
-};
-
-class TUserMap
-{
-public:
-	TUserMap(){}
-
-private:
-    bool Load()
-    {
-        // Load user from DB
-
-		return true;
-    }
-
-};
-
 class TPinocchio
 {
 
 public:
-	TPinocchio(const std::string& ip, const std::string& port, const std::string& server_name, const std::string& auth_key);
+	using DbMgrPtr=std::shared_ptr<TDatabaseManager>;
+
+	TPinocchio(const std::string& ip, const std::string& port, const std::string& server_name, const std::string& auth_key, DbMgrPtr db_mgr_ptr);
 	bool run();
 private:
 
@@ -88,7 +59,8 @@ private:
 	const std::string& m_serverName;
 	const std::string& m_authKey;
 	PinocchioLogHandler m_logHandler;
+	DbMgrPtr m_spDbMgr;
+	UserManager m_userMgr;
 
-	tbb::concurrent_hash_map<std::string,TUserMsg> m_msgData;
 };
 

@@ -1,12 +1,13 @@
 #include <boost/make_shared.hpp>
-#include <boost/bind.hpp>
+#include <functional>
 
 #include "redis/redis_sync_client.h"
 
+using namespace std::placeholders;
 RedisSyncClient::RedisSyncClient(boost::asio::io_service &ioService)
     : pimpl(boost::make_shared<RedisClientImpl>(boost::ref(ioService)))
 {
-    pimpl->errorHandler = boost::bind(&RedisClientImpl::defaulErrorHandler,
+    pimpl->errorHandler = std::bind(&RedisClientImpl::defaulErrorHandler,
                                       pimpl, _1);
 }
 
