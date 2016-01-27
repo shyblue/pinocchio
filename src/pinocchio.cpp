@@ -35,6 +35,12 @@ bool TPinocchio::AddRouteRegist()
 	 	if(token.length() < 40 || token.length() > 128)
 			return crow::response(400);
 
+		if(m_spDbMgr->IsMember(token) )
+		{
+			ST_LOGGER.Trace("Already regist in userToken [%s]",token.c_str());
+			return crow::response(403);
+		}
+
 		 if(!m_spDbMgr->AddMember(token))
 		 {
 			 ST_LOGGER.Error("Could not Add userToken [%s]",token.c_str());
