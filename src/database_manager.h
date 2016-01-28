@@ -23,7 +23,7 @@ public:
     bool IsMember(const std::string& userToken);
     bool AddMember(const std::string& userToken);
     bool AddMsg(const std::string& userToken, const std::string& msg);
-    bool GetMsg(const std::string& userToken, std::string& msg);
+    bool GetMsg(const std::string& userToken, std::vector<RedisValue>& arr);
     void onConnected(bool ok, const std::string& err_msg);
 private:
     int Initialize();

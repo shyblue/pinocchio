@@ -65,7 +65,11 @@ bool TPinocchio::AddRouteSend()
 		boost::split(fields, server_key, boost::is_any_of("="));
 
 		// if(boost::algorithm::to_lower(fields[0]) != "key") return crow::response(400);
-		//if(!m_authKey.find(fields[1])) return crow::response(405);
+		if(!m_authKey.find(fields[1]))
+		{
+			ST_LOGGER.Error("%s",m_authKey.c_str());
+			return crow::response(405);
+		}
 
 		auto x = crow::json::load(req.body);
 		if(!x)
@@ -76,10 +80,7 @@ bool TPinocchio::AddRouteSend()
 			return crow::response(406);
 		}
 
-		std::stringstream to,data;
-		to << x["to"];
-		ST_LOGGER.Trace("%s",to.str().c_str());
-		std::string token( to.str() );
+		std::string token = x["to"].s();
 		if(token.front()=='"')
 		{
 			token.erase(0,1);
@@ -92,9 +93,10 @@ bool TPinocchio::AddRouteSend()
 			return crow::response(407);
 		}
 
+		std::stringstream data;
 		data << x["data"];
-		ST_LOGGER.Trace("%s",data.str().c_str());
-		std::string msg( data.str() );
+		std::string msg = std::move(data.str());
+
 		if(!m_spDbMgr->AddMsg(token,msg))
 		{
 			ST_LOGGER.Trace("Could not push message[%s] to user[%s]",msg.c_str(),token.c_str());
@@ -121,17 +123,30 @@ bool TPinocchio::AddRouteRecv()
 		}
 
 		// get user's msg
-		std::string msg;
-		if(!m_spDbMgr->GetMsg(token,msg))
+		std::vector<RedisValue> arr;
+		if(!m_spDbMgr->GetMsg(token,arr))
 		{
 			ST_LOGGER.Trace("[Get Message DB Error [%s]",token.c_str());
 			return crow::response(408);
 		}
+		if(arr.size()==0)
+		{
+			return crow::response("[{data:\"\"}]");
+		}
 		// response msg
-		crow::json::wvalue x;
-		x["data"]=msg;
+		std::stringstream oss;
+		oss << "[";
+		std::reverse(arr.begin(),arr.end());
 
-		return crow::response(x);
+		for(const auto & v : arr)
+		{
+			crow::json::wvalue x;
+			x["data"]=v.toString();
+			oss << crow::json::dump(x) << ",";
+		}
+		oss << "{data:\"\"}]";
+
+		return crow::response(oss.str());
 	}
 	);
 

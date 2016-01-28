@@ -98,7 +98,8 @@ bool TDatabaseManager::AddMember(const std::string &userToken)
 
     if(result.isOk())
     {
-        if(result.toInt() == 1) return true;
+        return true;
+        //if(result.toInt() == 1) return true;
     }
     return false;
 }
@@ -106,24 +107,31 @@ bool TDatabaseManager::AddMember(const std::string &userToken)
 bool TDatabaseManager::AddMsg(const std::string &userToken, const std::string &msg)
 {
     /*
-    m_asyncClient.command("LPUSH",userToken,msg,[&](const RedisValue &v){
+    m_asyncClient.command("RPUSH",userToken,msg,[&](const RedisValue &v){
         ST_LOGGER.Trace("[Add message : %s]",v.toString().c_str());
     });
     */
     auto result = m_syncClient.command("LPUSH",userToken,msg);
     if(result.isOk())
     {
-        if(result.toInt() == 1) return true;
+        if(result.toInt() > 99)
+        {
+            m_asyncClient.command("LTRIM",userToken,"0","99",
+                              [](const RedisValue& v){ ST_LOGGER.Trace("[LTRIM : %s]",v.toString().c_str()); });
+        }
+        return true;
     }
     return false;
 }
 
-bool TDatabaseManager::GetMsg(const std::string &userToken, std::string &msg)
+bool TDatabaseManager::GetMsg(const std::string &userToken, std::vector<RedisValue> &arr)
 {
-    auto result = m_syncClient.command("RPOP",userToken);
+    auto result = m_syncClient.command("LRANGE",userToken,"0","-1");
     if(result.isOk())
     {
-        msg = result.toString();
+        arr = result.toArray();
+        m_asyncClient.command("LTRIM",userToken,"100","-1",
+                              [](const RedisValue& v){ ST_LOGGER.Trace("[LTRIM : %s]",v.toString().c_str()); });
         return true;
     }
     return false;
