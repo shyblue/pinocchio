@@ -1,7 +1,5 @@
 #include "pinocchio.h"
 
-#include <boost/algorithm/string.hpp>
-
 TPinocchio::TPinocchio(const std::string& ip, const std::string& port, const std::string& server_name, const std::string& auth_key, DbMgrPtr db_mgr_ptr)
 		: m_app(),m_ip(ip),m_port(port), m_serverName(server_name), m_authKey(auth_key), m_logHandler(), m_spDbMgr(db_mgr_ptr), m_userMgr(m_spDbMgr)
 {
@@ -59,7 +57,7 @@ bool TPinocchio::AddRouteSend()
 {
 	ROUTE(m_app,"/gcm/send").methods("POST"_method)
 	([&](const crow::request& req)
-	{
+	 {
 		std::string server_key = req.get_header_value("Authorization");
 
 		std::vector<std::string> fields;
@@ -96,10 +94,7 @@ bool TPinocchio::AddRouteSend()
 			return crow::response(407);
 		}
 
-		std::stringstream data;
-		data << x["data"];
-		std::string msg = std::move(data.str());
-
+		std::string msg = std::move(crow::json::dump(x["data"]));
 		if(!m_spDbMgr->AddMsg(token,msg))
 		{
 			ST_LOGGER.Trace("Could not push message[%s] to user[%s]",msg.c_str(),token.c_str());
@@ -107,7 +102,7 @@ bool TPinocchio::AddRouteSend()
 		}
 
 		return crow::response(200);
-	}
+	 }
 	);
 
 	return true;
@@ -116,7 +111,8 @@ bool TPinocchio::AddRouteSend()
 bool TPinocchio::AddRouteRecv()
 {
 	ROUTE(m_app,"/gcm/recv/<string>")
-	([&](const std::string& token) {
+	([&](const std::string& token)
+	 {
 		if (token.length() > 128) return crow::response(400);
 
 		if (!m_spDbMgr->IsMember(token))
@@ -132,25 +128,20 @@ bool TPinocchio::AddRouteRecv()
 			ST_LOGGER.Trace("[Get Message DB Error [%s]",token.c_str());
 			return crow::response(408);
 		}
-		if(arr.size()==0)
-		{
-			return crow::response("[{data:\"\"}]");
-		}
+
 		// response msg
 		std::stringstream oss;
 		oss << "[";
-		std::reverse(arr.begin(),arr.end());
+		if(arr.size() > 1)	std::reverse(arr.begin(),arr.end());
 
 		for(const auto & v : arr)
 		{
-			crow::json::wvalue x;
-			x["data"]=v.toString();
-			oss << crow::json::dump(x) << ",";
+			oss << "{data:" << v.toString() << "},";
 		}
 		oss << "{data:\"\"}]";
 
 		return crow::response(oss.str());
-	}
+	 }
 	);
 
 	return true;
@@ -165,13 +156,13 @@ bool TPinocchio::AddRoutePublishApiKey()
 			return crow::response(400);
 		}
 
-
 		 return crow::response(200);
 	 }
 	);
 
 	return true;
 }
+
 bool TPinocchio::run()
 {
 	m_app.ip(m_ip)
