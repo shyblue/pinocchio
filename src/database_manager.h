@@ -28,8 +28,8 @@ public:
 private:
     int Initialize();
 
-    const std::string& m_ip;
-    const std::string& m_port;
+    const std::string m_ip;
+    const std::string m_port;
     boost::asio::io_service m_ioService;
     RedisAsyncClient m_asyncClient;
     RedisSyncClient m_syncClient;

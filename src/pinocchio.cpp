@@ -1,5 +1,7 @@
 #include "pinocchio.h"
 
+#include <boost/algorithm/string.hpp>
+
 TPinocchio::TPinocchio(const std::string& ip, const std::string& port, const std::string& server_name, const std::string& auth_key, DbMgrPtr db_mgr_ptr)
 		: m_app(),m_ip(ip),m_port(port), m_serverName(server_name), m_authKey(auth_key), m_logHandler(), m_spDbMgr(db_mgr_ptr), m_userMgr(m_spDbMgr)
 {
@@ -60,14 +62,15 @@ bool TPinocchio::AddRouteSend()
 	{
 		std::string server_key = req.get_header_value("Authorization");
 
-		ST_LOGGER.Trace("[Authorization : %s]",server_key.c_str());
 		std::vector<std::string> fields;
 		boost::split(fields, server_key, boost::is_any_of("="));
 
-		// if(boost::algorithm::to_lower(fields[0]) != "key") return crow::response(400);
-		if(!m_authKey.find(fields[1]))
+		boost::algorithm::trim_right(fields[1]);
+		if(m_authKey.compare(fields[1]) !=0 )
 		{
-			ST_LOGGER.Error("%s",m_authKey.c_str());
+			ST_LOGGER.Error("AUTH KEY [%s]",m_authKey.c_str());
+			ST_LOGGER.Error("FIELDS[1][%s]",fields[1].c_str());
+
 			return crow::response(405);
 		}
 
