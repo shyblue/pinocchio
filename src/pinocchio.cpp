@@ -62,8 +62,8 @@ bool TPinocchio::AddRouteSend()
 
 		std::vector<std::string> fields;
 		boost::split(fields, server_key, boost::is_any_of("="));
-
-		boost::algorithm::trim_right(fields[1]);
+		boost::trim(fields[1]);
+		//boost::algorithm::trim_right(fields[1]);
 		if(m_authKey.compare(fields[1]) !=0 )
 		{
 			ST_LOGGER.Error("AUTH KEY [%s]",m_authKey.c_str());
@@ -114,13 +114,13 @@ bool TPinocchio::AddRouteRecv()
 	([&](const std::string& token)
 	 {
 		if (token.length() > 128) return crow::response(400);
-
+/*
 		if (!m_spDbMgr->IsMember(token))
 		{
 			ST_LOGGER.Trace("[Could not find userToken [%s]", token.c_str());
 			return crow::response(407);
 		}
-
+*/
 		// get user's msg
 		std::vector<RedisValue> arr;
 		if(!m_spDbMgr->GetMsg(token,arr))
@@ -168,6 +168,9 @@ bool TPinocchio::run()
 	m_app.ip(m_ip)
 			.port(static_cast<uint16_t >(std::stoi(m_port)))
 			.name(m_serverName)
+#ifdef CROW_ENABLE_SSL
+			.ssl_file("shyblue.sarang.net.crt","shyblue.sarang.net.key")
+#endif
 			.multithreaded()
 			.run();
 

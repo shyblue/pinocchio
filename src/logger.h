@@ -1,5 +1,4 @@
-#ifndef _UTIL_LOGGER_H_
-#define _UTIL_LOGGER_H_
+#pragma once
 
 #include <boost/serialization/singleton.hpp>
 #include <string>
@@ -37,5 +36,3 @@ private:
 };
 
 #define ST_LOGGER Logger::get_mutable_instance()
-
-#endif // _UTIL_LOGGER_H_

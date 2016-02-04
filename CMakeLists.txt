@@ -12,6 +12,7 @@ find_package(Threads)
 find_package(Boost 1.57 COMPONENTS date_time filesystem system thread regex
 	REQUIRED)
 find_package(TBB)
+find_package(OPENSSL)
 find_package(LOG4CXX)
 
 find_library(UCL_LIBRARY NAMES ucl libucl  PATHS ${PROJECT_LIB_DIR} )

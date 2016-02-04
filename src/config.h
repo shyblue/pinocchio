@@ -1,10 +1,9 @@
 ﻿#pragma once
 
 #include <boost/serialization/singleton.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/property_tree/ptree.hpp>
 
-class Configure : protected boost::serialization::singleton<Configure>
+class Configure : public boost::serialization::singleton<Configure>
 {
 public:
 
@@ -43,4 +42,4 @@ const _T Configure::GetConfigureData(std::string key, const _T default_value)
 	return m_iniTree.get<_T>(key, default_value);
 }
 
-#define ST_CONFIG() Configure::GetInstancePtr()
+#define ST_CONFIG Configure::get_mutable_instance()
