@@ -35,11 +35,13 @@ bool TPinocchio::AddRouteRegist()
 	 	if(token.length() < 40 || token.length() > 128)
 			return crow::response(400);
 
+		 /*
 		if(m_spDbMgr->IsMember(token) )
 		{
 			ST_LOGGER.Trace("Already regist in userToken [%s]",token.c_str());
 			return crow::response(403);
 		}
+		*/
 
 		 if(!m_spDbMgr->AddMember(token))
 		 {
@@ -88,11 +90,13 @@ bool TPinocchio::AddRouteSend()
 			token.erase(token.size()-1);
 		}
 
+		 /*
 		if(!m_spDbMgr->IsMember(token) )
 		{
 			ST_LOGGER.Trace("Token not found in userToken [%s]",token.c_str());
 			return crow::response(407);
 		}
+		*/
 
 		std::string msg = std::move(crow::json::dump(x["data"]));
 		if(!m_spDbMgr->AddMsg(token,msg))

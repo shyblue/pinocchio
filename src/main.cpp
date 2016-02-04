@@ -24,8 +24,7 @@ int main(void)
 			pDb
 	);
 
-	tbb::tbb_thread appThread([&](){app.run(); });
-	appThread.join();
+	app.run();
 
 	return 0;
 }
