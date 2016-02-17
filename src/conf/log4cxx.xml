@@ -11,7 +11,7 @@
 	<!-- APPENDER : ROLLFILE -->
 	<appender name="RFILE" class="org.apache.log4j.rolling.RollingFileAppender">
 		<rollingPolicy class="org.apache.log4j.rolling.TimeBasedRollingPolicy">
-			<param name="fileNamePattern" value="log/server.%d{yyyyMM}.log"/>
+			<param name="fileNamePattern" value="log/server.%d{yyyyMMdd}.log"/>
 		</rollingPolicy>
 		<layout class="org.apache.log4j.PatternLayout">
 			<param name="ConversionPattern" value="[%date] [%level] [%thread] [%logger] %m%n"/>

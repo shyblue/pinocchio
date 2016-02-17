@@ -169,12 +169,18 @@ bool TPinocchio::AddRoutePublishApiKey()
 
 bool TPinocchio::run()
 {
+	bool isSsl = static_cast<bool>(ST_CONFIG.GetConfigureData<int>("IS_SSL_SERVER",0));
+	if(isSsl)
+	{
+		m_app.ssl_file(
+				ST_CONFIG.GetConfigureData<std::string>("CERT_FILE_NAME","shyblue.sarang.net.crt"),
+				ST_CONFIG.GetConfigureData<std::string>("KEY_FILE_NAME","shyblue.sarang.net.key")
+		);
+	}
+
 	m_app.ip(m_ip)
 			.port(static_cast<uint16_t >(std::stoi(m_port)))
 			.name(m_serverName)
-#ifdef CROW_ENABLE_SSL
-			.ssl_file("shyblue.sarang.net.crt","shyblue.sarang.net.key")
-#endif
 			.multithreaded()
 			.run();
 
