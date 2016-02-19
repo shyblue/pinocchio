@@ -7,8 +7,10 @@ set(PROJECT_LIB_DIR ${PROJECT_SOURCE_DIR}/lib)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
-find_package(PkgConfig REQUIRED)
-pkg_search_module(OPENSSL REQUIRED openssl)
+find_package(PkgConfig)
+if(PKGCONFIG_FOUIND)
+	pkg_search_module(OPENSSL REQUIRED openssl)
+endif()
 
 find_package(Tcmalloc)
 find_package(Threads)
