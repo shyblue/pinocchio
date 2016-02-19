@@ -38,11 +38,7 @@ add_custom_command(OUTPUT conf
 		COMMAND ${CMAKE_COMMAND} -E
 		copy ${PROJECT_SOURCE_DIR}/conf/pinocchio.conf ${CMAKE_CURRENT_BINARY_DIR}/pinocchio.conf
 		DEPENDS ${PROJECT_SOURCE_DIR}/conf/pinocchio.conf )
-add_custom_command(OUTPUT log
-		COMMAND ${CMAKE_COMMAND} -E
-		copy ${PROJECT_SOURCE_DIR}/conf/log4cxx.xml ${CMAKE_CURRENT_BINARY_DIR}/log4cxx.xml
-		DEPENDS ${PROJECT_SOURCE_DIR}/conf/log4cxx.xml )
-add_custom_target(conf_copy ALL DEPENDS conf log)
+add_custom_target(conf_copy ALL DEPENDS conf)
 
 add_custom_command(OUTPUT test
         COMMAND ${CMAKE_COMMAND} -E
