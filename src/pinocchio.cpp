@@ -100,6 +100,7 @@ bool TPinocchio::AddRouteSend()
 			return crow::response(408);
 		}
 
+		ST_LOGGER.Trace() << "Send MSG [" << msg << "]";
 		return crow::response(200);
 	}
 	);
@@ -138,6 +139,7 @@ bool TPinocchio::AddRouteRecv()
 		}
 		oss << "{data:\"\"}]";
 
+		 ST_LOGGER.Trace() << "Recv msg user["<<token<<"] msg[" << oss.str() <<"]";
 		return crow::response(oss.str());
 	 }
 	);
