@@ -18,19 +18,19 @@ public:
 		switch (level)
 		{
 			case crow::LogLevel::DEBUG:
-				ST_LOGGER.Debug(message.c_str());
+				ST_LOGGER.Debug() << message;
 				break;
 			case crow::LogLevel::INFO:
-				ST_LOGGER.Info(message.c_str());
+				ST_LOGGER.Info() << message;
 				break;
 			case crow::LogLevel::WARNING:
-				ST_LOGGER.Warn(message.c_str());
+				ST_LOGGER.Warn() << message;
 				break;
 			case crow::LogLevel::ERROR:
-				ST_LOGGER.Error(message.c_str());
+				ST_LOGGER.Error() << message;
 				break;
 			case crow::LogLevel::CRITICAL:
-				ST_LOGGER.Fatal(message.c_str());
+				ST_LOGGER.Critical() << message;
 				break;
 		}
 	}

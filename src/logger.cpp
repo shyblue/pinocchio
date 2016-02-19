@@ -1,6 +1,3 @@
-#include <iostream>
-#include <stdarg.h>
-
 #include "logger.h"
 
 Logger::Logger(void)
@@ -11,184 +8,22 @@ Logger::~Logger(void)
 {
 }
 
-void Logger::Create(const std::string& config_name)
+void Logger::Create()
 {
 	try
 	{
-		log4cxx::xml::DOMConfigurator::configureAndWatch( config_name );
-		m_pLogger = log4cxx::Logger::getRootLogger();
+		sinks_.push_back(std::make_shared<spdlog::sinks::daily_file_sink_st>("server","log",23,59));
+		sinks_.push_back(std::make_shared<spdlog::sinks::stdout_sink_st>());
+
+		logger_ = std::make_shared<spdlog::logger>("pinocchio", sinks_.begin(), sinks_.end()) ;
+
+		spdlog::register_logger(logger_);
+
+		logger_->set_level(spdlog::level::trace);
 	}
 	catch (std::exception& e)
 	{
-		std::cout << e.what() << std::endl;
+		std::cout << "Log create failed" << e.what() << std::endl;
 	}
-}
 
-void Logger::Trace(const char* format, ...)
-{
-	char log[kMaxBufferLength] = { 0, };
-
-	va_list args;
-	va_start(args, format);
-
-	vsnprintf(log, kMaxBufferLength, format, args);
-
-	va_end(args);
-
-	LOG4CXX_TRACE(m_pLogger, log);
-}
-
-void Logger::Debug(const char* format, ...)
-{
-	char log[kMaxBufferLength] = { 0, };
-
-	va_list args;
-	va_start(args, format);
-
-	vsnprintf(log, kMaxBufferLength, format, args);
-
-	va_end(args);
-	
-	LOG4CXX_TRACE(m_pLogger, log);
-}
-
-void Logger::Info(const char* format, ...)
-{
-	char log[kMaxBufferLength] = { 0, };
-
-	va_list args;
-	va_start(args, format);
-
-	vsnprintf(log, kMaxBufferLength, format, args);
-
-	va_end(args);
-
-	LOG4CXX_INFO(m_pLogger, log);
-}
-
-void Logger::Warn(const char* format, ...)
-{
-	char log[kMaxBufferLength] = { 0, };
-
-	va_list args;
-	va_start(args, format);
-
-	vsnprintf(log, kMaxBufferLength, format, args);
-
-	va_end(args);
-
-	LOG4CXX_WARN(m_pLogger, log);
-}
-
-void Logger::Error(const char* format, ...)
-{
-	char log[kMaxBufferLength] = { 0, };
-
-	va_list args;
-	va_start(args, format);
-
-	vsnprintf(log, kMaxBufferLength, format, args);
-
-	va_end(args);
-
-	LOG4CXX_ERROR(m_pLogger, log);
-}
-
-void Logger::Fatal(const char* format, ...)
-{
-	char log[kMaxBufferLength] = { 0, };
-
-	va_list args;
-	va_start(args, format);
-
-	vsnprintf(log, kMaxBufferLength, format, args);
-
-	va_end(args);
-	
-	LOG4CXX_FATAL(m_pLogger, log);
-}
-
-void Logger::Trace(const wchar_t* format, ...)
-{
-	wchar_t log[kMaxBufferLength] = { 0, };
-
-	va_list args;
-	va_start(args, format);
-
-	vswprintf(log, kMaxBufferLength, format, args);
-
-	va_end(args);
-	
-	LOG4CXX_TRACE(m_pLogger, log);
-}
-
-void Logger::Debug(const wchar_t* format, ...)
-{
-	wchar_t log[kMaxBufferLength] = { 0, };
-
-	va_list args;
-	va_start(args, format);
-
-	vswprintf(log, kMaxBufferLength, format, args);
-
-	va_end(args);
-
-	LOG4CXX_TRACE(m_pLogger, log);
-}
-
-void Logger::Info(const wchar_t* format, ...)
-{
-	wchar_t log[kMaxBufferLength] = { 0, };
-
-	va_list args;
-	va_start(args, format);
-
-	vswprintf(log, kMaxBufferLength, format, args);
-
-	va_end(args);
-
-	LOG4CXX_INFO(m_pLogger, log);
-}
-
-void Logger::Warn(const wchar_t* format, ...)
-{
-	wchar_t log[kMaxBufferLength] = { 0, };
-
-	va_list args;
-	va_start(args, format);
-
-	vswprintf(log, kMaxBufferLength, format, args);
-
-	va_end(args);
-	
-	LOG4CXX_WARN(m_pLogger, log);
-}
-
-void Logger::Error(const wchar_t* format, ...)
-{
-	wchar_t log[kMaxBufferLength] = { 0, };
-
-	va_list args;
-	va_start(args, format);
-
-	vswprintf(log, kMaxBufferLength, format, args);
-
-	va_end(args);
-
-	LOG4CXX_ERROR(m_pLogger, log);
-}
-
-void Logger::Fatal(const wchar_t* format, ...)
-{
-	wchar_t log[kMaxBufferLength] = { 0, };
-
-	va_list args;
-	va_start(args, format);
-
-
-	vswprintf(log, kMaxBufferLength, format, args);
-
-	va_end(args);
-
-	LOG4CXX_FATAL(m_pLogger, log);
 }

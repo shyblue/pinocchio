@@ -7,12 +7,6 @@ class Configure : public boost::serialization::singleton<Configure>
 {
 public:
 
-	static Configure* GetInstancePtr()
-	{
-		Configure* ptr = &Configure::get_mutable_instance();
-		return ptr;
-	}
-
 	bool Initialize(const std::string ConfigureFilePath);
 	bool WriteConfigureFile();
 

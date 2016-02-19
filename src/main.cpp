@@ -4,8 +4,8 @@ using StringOpt =  boost::optional<std::string>;
 
 int main(void)
 {
-	ST_LOGGER.Create("log4cxx.xml");
-	ST_LOGGER.Info("Pinocchio Server Start!!!");
+	ST_LOGGER.Create();
+	ST_LOGGER.Info() << "Pinocchio Server Start!!!";
 
 	ST_CONFIG.Initialize("./pinocchio.conf");
 

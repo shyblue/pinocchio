@@ -20,10 +20,10 @@ int TDatabaseManager::Initialize()
     std::string err_msg;
     if( !m_syncClient.connect(endpoint, err_msg))
     {
-        ST_LOGGER.Error("Can't connect to redis : %s:%s (%s)",m_ip.c_str(),m_port.c_str(),err_msg.c_str());
+        ST_LOGGER.Error() << "Can't connect to redis : " << m_ip << ":" << m_port << "(" << err_msg << ")";
         return -1;
     }
-    ST_LOGGER.Info("Redis Connected sync client : %s:%s", m_ip.c_str(),m_port.c_str());
+    ST_LOGGER.Info() << "Redis Connected sync client : " << m_ip << ":" << m_port;
 
     tbb::tbb_thread thread( [&]{ m_ioService.run(); } );
     return 0;
@@ -67,12 +67,12 @@ void TDatabaseManager::onConnected(bool ok, const std::string &err_msg)
 {
     if( ok )
     {
-        ST_LOGGER.Info("Redis Connected async client : %s:%s", m_ip.c_str(),m_port.c_str());
+        ST_LOGGER.Info() << "Redis Connected sync client : " << m_ip << ":" << m_port;
         test();
     }
     else
     {
-        ST_LOGGER.Error("Can't connect to redis : %s:%s (%s)",m_ip.c_str(),m_port.c_str(),err_msg.c_str());
+        ST_LOGGER.Error() << "Can't connect to redis : " << m_ip << ":" << m_port << "(" << err_msg << ")";
         m_ioService.stop();
     }
 }
@@ -82,13 +82,13 @@ bool TDatabaseManager::IsMember(const std::string &userToken)
 
     auto result = m_syncClient.command("SISMEMBER","userToken",userToken);
 
-    ST_LOGGER.Trace("IsMember [%s]",result.inspect().c_str());
+    ST_LOGGER.Trace() << "IsMember [" << result.inspect() << "]";
     if(result.isOk())
     {
         if(result.toInt() == 1) return true;
     }
 
-    ST_LOGGER.Error("SISMEMBER userToken %s result : %d",userToken.c_str(),result.toInt());
+    ST_LOGGER.Error() <<  "SISMEMBER userToken " << userToken << " result : " << result.toInt();
     return false;
 }
 
@@ -96,12 +96,7 @@ bool TDatabaseManager::AddMember(const std::string &userToken)
 {
     auto result = m_syncClient.command("SADD","userToken",userToken);
 
-    if(result.isOk())
-    {
-        return true;
-        //if(result.toInt() == 1) return true;
-    }
-    return false;
+    return result.isOk();
 }
 
 bool TDatabaseManager::AddMsg(const std::string &userToken, const std::string &msg)
@@ -117,7 +112,7 @@ bool TDatabaseManager::AddMsg(const std::string &userToken, const std::string &m
         if(result.toInt() > 99)
         {
             m_asyncClient.command("LTRIM",userToken,"0","99",
-                              [](const RedisValue& v){ ST_LOGGER.Trace("[LTRIM : %s]",v.toString().c_str()); });
+                              [](const RedisValue& v){ ST_LOGGER.Trace() << "[LTRIM : " << v.toString() << "]"; });
         }
         return true;
     }
@@ -131,7 +126,7 @@ bool TDatabaseManager::GetMsg(const std::string &userToken, std::vector<RedisVal
     {
         arr = result.toArray();
         m_asyncClient.command("LTRIM",userToken,"100","-1",
-                              [](const RedisValue& v){ ST_LOGGER.Trace("[LTRIM : %s]",v.toString().c_str()); });
+                              [](const RedisValue& v){ ST_LOGGER.Trace() << "[LTRIM : " << v.toString() << "]"; });
         return true;
     }
     return false;

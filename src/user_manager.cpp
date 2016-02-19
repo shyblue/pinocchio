@@ -6,7 +6,7 @@ int UserManager::Load()
     auto* p_client =m_spDbManager->getSyncClient();
     if(p_client)
     {
-        ST_LOGGER.Trace("[LOAD userTokens START]");
+        ST_LOGGER.Trace() << "[LOAD userTokens START]";
         auto result = p_client->command("SMEMBERS","userToken");
         if(result.isOk())
         {
@@ -15,11 +15,11 @@ int UserManager::Load()
             for(const auto& v : x )
             {
                 ++nTotal;
-                ST_LOGGER.Trace("    [%d][%s]",nTotal,v.toString().c_str());
+                ST_LOGGER.Trace()<< "    ["<< nTotal << "][" << v.toString() <<"]";
             }
 
         }
-        ST_LOGGER.Trace("[LOAD userToken COMPLETE]");
+        ST_LOGGER.Trace() << "[LOAD userToken COMPLETE]";
     }
 
     return nTotal;

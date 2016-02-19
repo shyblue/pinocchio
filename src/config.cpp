@@ -20,7 +20,7 @@ bool Configure::Initialize(const std::string config_file)
 	}
 	catch(std::exception& exception)
 	{
-		ST_LOGGER.Error("[ConfigureData] Initialize Error[%s]", exception.what());
+		ST_LOGGER.Error() << "[ConfigureData] Initialize Error : " << exception.what();
 		return false;
 	}
 
@@ -35,7 +35,7 @@ bool Configure::LoadConfigureFile( const std::string config_file)
 	if(!boost::filesystem::exists(boost::filesystem::path(path) ) )
 	{
 		// ERR_CONFIGURE_NOTPATH  Error 기록
-		ST_LOGGER.Info("[ConfigureData][LoadCofigureFile] Nonexist File[%s]", path.string().c_str() );
+		ST_LOGGER.Info() << "[ConfigureData][LoadCofigureFile] Nonexist File : " << path.string();
 		return false;
 	}
 
@@ -55,14 +55,14 @@ bool Configure::WriteConfigureFile()
 
 void Configure::OutConfigureData()
 {
-	ST_LOGGER.Trace("[CONFIGURE DATA] [%s]", m_configFile.c_str());
+	ST_LOGGER.Trace() << "[CONFIGURE DATA] [" << m_configFile << "]";
 	for(boost::property_tree::ptree::value_type& v : m_iniTree)
 	{
 		std::string key = v.first;
 		std::string value = v.second.get_value<std::string>();
-		ST_LOGGER.Trace("    [%s] %s",key.c_str(),value.c_str());
+		ST_LOGGER.Trace() << "    " << key << "=" << value;
 	}
-	ST_LOGGER.Trace("[END CONFIGURE DATA]");
+	ST_LOGGER.Trace() << "[END CONFIGURE DATA]";
 }
 
 void Configure::SetConfigureData(std::string key, uint32_t value)
