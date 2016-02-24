@@ -177,7 +177,6 @@ bool TPinocchio::run()
 	m_app.ip(m_ip)
 			.port(static_cast<uint16_t >(std::stoi(m_port)))
 			.name(m_serverName)
-			.multithreaded()
 			.run();
 
 	return true;

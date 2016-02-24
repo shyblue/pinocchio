@@ -67,7 +67,7 @@ void TDatabaseManager::onConnected(bool ok, const std::string &err_msg)
 {
     if( ok )
     {
-        ST_LOGGER.Info() << "Redis Connected sync client : " << m_ip << ":" << m_port;
+        ST_LOGGER.Info() << "Redis Connected async client : " << m_ip << ":" << m_port;
         test();
     }
     else
@@ -106,17 +106,21 @@ bool TDatabaseManager::AddMsg(const std::string &userToken, const std::string &m
         ST_LOGGER.Trace("[Add message : %s]",v.toString().c_str());
     });
     */
-    auto result = m_syncClient.command("LPUSH",userToken,msg);
-    if(result.isOk())
-    {
-        if(result.toInt() > 99)
-        {
-            m_asyncClient.command("LTRIM",userToken,"0","99",
-                              [](const RedisValue& v){ ST_LOGGER.Trace() << "[LTRIM : " << v.toString() << "]"; });
+    m_asyncClient.command("LPUSH",userToken,msg,[&](const RedisValue& v) {
+        if (v.isOk()) {
+            if (v.toInt() > 99) {
+                m_asyncClient.command("LTRIM", userToken, "0", "99",
+                                      [](const RedisValue &v) {
+                                          ST_LOGGER.Trace() << "[LTRIM : " << v.toString() << "]";
+                                      });
+            }
         }
-        return true;
-    }
-    return false;
+        else
+        {
+            ST_LOGGER.Error() << "[Couldn't send message : " <<
+        }
+    });
+    return true;
 }
 
 bool TDatabaseManager::GetMsg(const std::string &userToken, std::vector<RedisValue> &arr)
