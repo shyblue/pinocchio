@@ -1,4 +1,6 @@
 #include "pinocchio.h"
+#include <chrono>
+
 
 TPinocchio::TPinocchio(const std::string& ip, const std::string& port, const std::string& server_name, const std::string& auth_key, DbMgrPtr db_mgr_ptr)
 		: m_app(),m_ip(ip),m_port(port), m_serverName(server_name), m_authKey(auth_key), m_logHandler(), m_spDbMgr(db_mgr_ptr), m_userMgr(m_spDbMgr)
@@ -59,6 +61,7 @@ bool TPinocchio::AddRouteSend()
 {
 	ROUTE(m_app,"/gcm/send").methods("POST"_method)
 	([&](const crow::request &req) {
+		Stopwatch<> sw;
 		std::string server_key = req.get_header_value("Authorization");
 
 		std::vector<std::string> fields;
@@ -74,9 +77,9 @@ bool TPinocchio::AddRouteSend()
 
 		auto x = crow::json::load(req.body);
 		if (!x) {
-			ST_LOGGER.Trace() << "[POSTED JSON]";
-			ST_LOGGER.Trace() << req.body ;
-			ST_LOGGER.Trace() << "[POSTED JSON END]";
+			ST_LOGGER.Error() << "[POSTED JSON PARSE ERROR]";
+			ST_LOGGER.Error() << req.body ;
+			ST_LOGGER.Error() << "[POSTED JSON END]";
 			return crow::response(406);
 		}
 
@@ -100,7 +103,7 @@ bool TPinocchio::AddRouteSend()
 			return crow::response(408);
 		}
 
-		ST_LOGGER.Trace() << "Send MSG [" << msg << "]";
+		ST_LOGGER.Trace() << "AddRouteSend" << "[" << msg << "] " << sw.stop() << " micro senconds";
 		return crow::response(200);
 	}
 	);
@@ -112,6 +115,7 @@ bool TPinocchio::AddRouteRecv()
 	ROUTE(m_app,"/gcm/recv/<string>")
 	([&](const std::string& token)
 	 {
+		Stopwatch<> sw;
 		if (token.length() > 128) return crow::response(400);
 /*
 		if (!m_spDbMgr->IsMember(token))
@@ -138,8 +142,7 @@ bool TPinocchio::AddRouteRecv()
 			oss << "{data:" << v.toString() << "},";
 		}
 		oss << "{data:\"\"}]";
-
-		 ST_LOGGER.Trace() << "Recv msg user["<<token<<"] msg[" << oss.str() <<"]";
+		ST_LOGGER.Trace() << "AddRouteRecv User " << token << " got  msg [" << oss.str() <<"] elapsed  " << sw.stop() << " micro seconds";
 		return crow::response(oss.str());
 	 }
 	);

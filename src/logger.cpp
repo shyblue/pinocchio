@@ -19,6 +19,7 @@ void Logger::Create()
 
 		spdlog::register_logger(logger_);
 
+		logger_->set_pattern("[%Y-%m-%d %X][%l][%t][%v]");
 		logger_->set_level(spdlog::level::trace);
 	}
 	catch (std::exception& e)

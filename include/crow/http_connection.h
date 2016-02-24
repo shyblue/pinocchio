@@ -197,11 +197,13 @@ namespace crow
             server_name_(server_name),
             middlewares_(middlewares),
             get_cached_date_str(get_cached_date_str_f),
-            timer_queue(timer_queue)
+            timer_queue(timer_queue),
+            sw_()
         {
 #ifdef CROW_ENABLE_DEBUG
             connectionCount ++;
-            CROW_LOG_DEBUG << "Connection open, total " << connectionCount << ", " << this;
+
+            CROW_LOG_INFO << "Connection open, total " << connectionCount << ", " << this;
 #endif
         }
         
@@ -211,7 +213,7 @@ namespace crow
             cancel_deadline_timer();
 #ifdef CROW_ENABLE_DEBUG
             connectionCount --;
-            CROW_LOG_DEBUG << "Connection closed, total " << connectionCount << ", " << this;
+            CROW_LOG_INFO << "Connection closed, total " << connectionCount << ",delete  " << this;
 #endif
         }
 
@@ -250,6 +252,7 @@ namespace crow
 
         void handle()
         {
+            sw_.start();
             cancel_deadline_timer();
             bool is_invalid_request = false;
             add_keep_alive_ = false;
@@ -319,7 +322,7 @@ namespace crow
 
         void complete_request()
         {
-            CROW_LOG_INFO << "Response: " << this << ' ' << req_.raw_url << ' ' << res.code << ' ' << close_connection_;
+            CROW_LOG_INFO << "Response: " << this << ' ' << req_.raw_url << ' ' << res.code << ' ' << close_connection_ << ' ' << sw_.stop() << " micro senconds";
 
             if (need_to_call_after_handlers_)
             {
@@ -358,6 +361,7 @@ namespace crow
                 {401, "HTTP/1.1 401 Unauthorized\r\n"},
                 {403, "HTTP/1.1 403 Forbidden\r\n"},
                 {404, "HTTP/1.1 404 Not Found\r\n"},
+                {405, "HTTP/1.1 405 Invalid Auth Key\r\n"},
 
                 {500, "HTTP/1.1 500 Internal Server Error\r\n"},
                 {501, "HTTP/1.1 501 Not Implemented\r\n"},
@@ -570,6 +574,7 @@ namespace crow
 
         std::function<std::string()>& get_cached_date_str;
         detail::dumb_timer_queue& timer_queue;
+        Stopwatch<> sw_;
     };
 
 }
