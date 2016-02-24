@@ -117,7 +117,7 @@ bool TDatabaseManager::AddMsg(const std::string &userToken, const std::string &m
         }
         else
         {
-            ST_LOGGER.Error() << "[Couldn't send message : " <<
+            ST_LOGGER.Error() << "[Couldn't send message : " << msg << " To : " << userToken ;
         }
     });
     return true;
