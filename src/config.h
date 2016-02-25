@@ -7,7 +7,7 @@ class Configure : public boost::serialization::singleton<Configure>
 {
 public:
 
-	bool Initialize(const std::string ConfigureFilePath);
+	bool Initialize(const std::string config_file_path);
 	bool WriteConfigureFile();
 
 	// 사용할 설정 데이터를 얻어온다
@@ -24,16 +24,16 @@ protected:
 	Configure(void);
 	~Configure(void);
 private:
-	bool LoadConfigureFile(const std::string ConfigureFilePath);
+	bool LoadConfigureFile(const std::string config_file_path);
 
-	boost::property_tree::ptree			m_iniTree;
-	std::string							m_configFile;
+	boost::property_tree::ptree ini_tree_;
+	std::string config_file_;
 };
 
 template<typename _T>
 const _T Configure::GetConfigureData(std::string key, const _T default_value)
 {
-	return m_iniTree.get<_T>(key, default_value);
+	return ini_tree_.get<_T>(key, default_value);
 }
 
 #define ST_CONFIG Configure::get_mutable_instance()

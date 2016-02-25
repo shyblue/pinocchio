@@ -53,14 +53,14 @@ private:
 	bool AddRoutePublishApiKey();
 	bool Initialize();
 
-	crow::Crow<> m_app;
-	const std::string m_ip;
-	const std::string m_port;
-	const std::string m_serverName;
-	const std::string m_authKey;
-	PinocchioLogHandler m_logHandler;
-	DbMgrPtr m_spDbMgr;
-	UserManager m_userMgr;
+	crow::Crow<> app_;
+	const std::string ip_;
+	const std::string port_;
+	const std::string server_name_;
+	const std::string auth_key_;
+	PinocchioLogHandler log_handler_;
+	DbMgrPtr sp_db_mgr_;
+	UserManager user_mgr_;
 
 };
 

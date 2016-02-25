@@ -25,6 +25,7 @@ int main(void)
 	);
 
 	app.run();
+	pDb->stop();
 
 	return 0;
 }

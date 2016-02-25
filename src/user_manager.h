@@ -7,12 +7,12 @@ class UserManager
 {
 	using DbMgrPtr=std::shared_ptr<TDatabaseManager>;
 public:
-	explicit  UserManager(DbMgrPtr db) : m_spDbManager(db) { Initialize(); }
+	explicit  UserManager(DbMgrPtr db) : sp_db_mgr_(db) { Initialize(); }
 	~UserManager() {};
 
 private:
 	int Initialize() { return Load(); };
 	int Load();
 
-	DbMgrPtr m_spDbManager;
+	DbMgrPtr sp_db_mgr_;
 };

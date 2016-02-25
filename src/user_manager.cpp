@@ -3,7 +3,7 @@
 int UserManager::Load()
 {
     int nTotal=0;
-    auto* p_client =m_spDbManager->getSyncClient();
+    auto* p_client = sp_db_mgr_->getSyncClient();
     if(p_client)
     {
         ST_LOGGER.Trace() << "[LOAD userTokens START]";
