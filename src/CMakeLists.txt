@@ -44,6 +44,8 @@ add_custom_command(OUTPUT test
         COMMAND ${CMAKE_COMMAND} -E
         copy ${PROJECT_SOURCE_DIR}/test/send_msg.sh ${CMAKE_CURRENT_BINARY_DIR}/
         DEPENDS ${PROJECT_SOURCE_DIR}/test/send_msg.sh )
+add_custom_target(test_copy ALL DEPENDS test)
+
 add_custom_command(OUTPUT script
 		COMMAND ${CMAKE_COMMAND} -E
 		copy ${PROJECT_SOURCE_DIR}/script/runserver.sh ${CMAKE_CURRENT_BINARY_DIR}/
@@ -52,4 +54,4 @@ add_custom_command(OUTPUT fabric
 		COMMAND ${CMAKE_COMMAND} -E
 		copy ${PROJECT_SOURCE_DIR}/script/fabfile.py ${CMAKE_CURRENT_BINARY_DIR}/
 		DEPENDS ${PROJECT_SOURCE_DIR}/script/fabfile.py )
-add_custom_target(script_copy ALL DEPENDS test script fabric)
+add_custom_target(script_copy ALL DEPENDS  script fabric)
