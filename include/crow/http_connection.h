@@ -362,6 +362,9 @@ namespace crow
                 {403, "HTTP/1.1 403 Forbidden\r\n"},
                 {404, "HTTP/1.1 404 Not Found\r\n"},
                 {405, "HTTP/1.1 405 Invalid Auth Key\r\n"},
+                {406, "HTTP/1.1 406 JSON Parsing error\r\n"},
+                {407, "HTTP/1.1 407 User Token not found\r\n"},
+                {408, "HTTP/1.1 408 Database Error\r\n"},
 
                 {500, "HTTP/1.1 500 Internal Server Error\r\n"},
                 {501, "HTTP/1.1 501 Not Implemented\r\n"},
@@ -424,7 +427,7 @@ namespace crow
             }
             if (add_keep_alive_)
             {
-                static std::string keep_alive_tag = "Connetion: Keep-Alive";
+                static std::string keep_alive_tag = "Connection: Keep-Alive";
                 buffers_.emplace_back(keep_alive_tag.data(), keep_alive_tag.size());
                 buffers_.emplace_back(crlf.data(), crlf.size());
             }
@@ -434,7 +437,6 @@ namespace crow
             buffers_.emplace_back(res_body_copy_.data(), res_body_copy_.size());
 
             do_write();
-            res.clear();
 
             if (need_to_start_read_after_complete_)
             {
@@ -492,6 +494,7 @@ namespace crow
                 [&](const boost::system::error_code& ec, std::size_t bytes_transferred)
                 {
                     is_writing = false;
+		    res.clear();
                     res_body_copy_.clear();
                     if (!ec)
                     {

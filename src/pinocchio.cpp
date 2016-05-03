@@ -33,7 +33,7 @@ bool TPinocchio::AddRoute()
 bool TPinocchio::AddRouteRegist()
 {
 	ROUTE(app_, "/regist/<string>")
-	([&](const std::string& token)
+	([=](const std::string& token)
 	 {
 	 	if(token.length() < 40 || token.length() > 128)
 			return crow::response(400);
@@ -61,7 +61,7 @@ bool TPinocchio::AddRouteRegist()
 bool TPinocchio::AddRouteSend()
 {
 	ROUTE(app_, "/gcm/send").methods("POST"_method)
-	([&](const crow::request &req) {
+	([=](const crow::request &req) {
 		Stopwatch<> sw;
 		std::string server_key = req.get_header_value("Authorization");
 
@@ -114,7 +114,7 @@ bool TPinocchio::AddRouteSend()
 bool TPinocchio::AddRouteRecv()
 {
 	ROUTE(app_, "/gcm/recv/<string>")
-	([&](const std::string& token)
+	([=](const std::string& token)
 	 {
 		Stopwatch<> sw;
 		if (token.length() > 128) return crow::response(400);
@@ -180,6 +180,7 @@ bool TPinocchio::run()
 
 	app_.ip(ip_)
 			.port(static_cast<uint16_t >(std::stoi(port_)))
+			.multithreaded()
 			.name(server_name_)
 			.run();
 

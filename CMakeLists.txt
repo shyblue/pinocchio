@@ -7,23 +7,13 @@ set(PROJECT_LIB_DIR ${PROJECT_SOURCE_DIR}/lib)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
-find_package(PkgConfig)
-if(PKGCONFIG_FOUIND)
-	pkg_search_module(OPENSSL REQUIRED openssl)
-endif()
-
 find_package(Tcmalloc)
 find_package(Threads)
 find_package(Boost 1.57 COMPONENTS date_time filesystem system thread regex
 	REQUIRED)
 find_package(TBB)
+find_package(OPENSSL)
 
-if(OPENSSL_FOUND)
-	include_directories(${OPENSSL_INCLUDE_DIRS})
-	message(STATUS "Using OpenSSL ${OPENSSL_VERSION}")
-else()
-	find_package(OPENSSL REQUIRED)
-endif()
 include_directories(${Boost_INCLUDE_DIR})
 include_directories(${PROJECT_INCLUDE_DIR})
 include_directories(${PROJECT_SOURCE_DIR}/src)

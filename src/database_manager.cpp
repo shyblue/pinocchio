@@ -106,10 +106,10 @@ bool TDatabaseManager::AddMsg(const std::string &userToken, const std::string &m
         ST_LOGGER.Trace("[Add message : %s]",v.toString().c_str());
     });
     */
-    async_client_.command("LPUSH", userToken, msg, [&](const RedisValue& v) {
+    async_client_.command("LPUSH", userToken, msg, [=](const RedisValue& v) {
         if (v.isOk()) {
             if (v.toInt() > 99) {
-                async_client_.command("LTRIM", userToken, "0", "99",
+                async_client_.command("LTRIM", userToken.c_str(), "0", "99",
                                       [](const RedisValue &v) {
                                           ST_LOGGER.Trace() << "[LTRIM : " << v.toString() << "]";
                                       });
