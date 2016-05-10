@@ -177,10 +177,16 @@ bool TPinocchio::run()
 				ST_CONFIG.GetConfigureData<std::string>("KEY_FILE_NAME","shyblue.sarang.net.key")
 		);
 	}
+	
+	bool isMulti = static_cast<bool>(ST_CONFIG.GetConfigureData<int>("IS_MULTI_THREADED",0));
+	if(isMulti)
+	{
+			app_.multithreaded();
+			ST_LOGGER.Trace() << "Server running multi threaded mode.";
+	}
 
 	app_.ip(ip_)
 			.port(static_cast<uint16_t >(std::stoi(port_)))
-			.multithreaded()
 			.name(server_name_)
 			.run();
 
